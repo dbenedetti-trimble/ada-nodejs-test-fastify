@@ -7,7 +7,8 @@ module.exports = [
       'lib/config-validator.js',
       'lib/error-serializer.js',
       'test/same-shape.test.js',
-      'test/types/import.js'
+      'test/types/import.js',
+      '.ada/**'
     ],
     ts: true
   }),
@@ -29,7 +30,9 @@ module.exports = [
   {
     files: ['**/*.d.ts'],
     rules: {
-      'max-len': 'off'
+      'max-len': 'off',
+      '@stylistic/semi': 'off',
+      '@stylistic/space-before-function-paren': 'off'
     }
   }
 ]
