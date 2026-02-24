@@ -1,0 +1,183 @@
+---
+description: ADA-generated essential development setup and workflow instructions
+alwaysApply: true
+---
+
+# Fastify Development Setup - Quick Reference
+
+## Project Overview
+Fastify is a high-performance web framework for Node.js with a focus on speed and low overhead. This is the core framework repository.
+
+## Quick Start
+
+### Installation
+Install dependencies:
+```bash
+npm install
+```
+
+### Running Tests
+Run all tests with linting and TypeScript checks:
+```bash
+npm test
+```
+
+Run unit tests only:
+```bash
+npm run unit
+```
+
+Run tests in watch mode:
+```bash
+npm run test:watch
+```
+
+Run tests with coverage:
+```bash
+npm run coverage
+```
+
+Run CI tests (unit + TypeScript):
+```bash
+npm run test:ci
+```
+
+### Code Quality
+
+#### Linting
+Check code style with ESLint:
+```bash
+npm run lint
+```
+
+Auto-fix linting issues:
+```bash
+npm run lint:fix
+```
+
+Check markdown files:
+```bash
+npm run lint:markdown
+```
+
+#### Code Style
+This project uses [neostandard](https://github.com/neostandard/neostandard) for JavaScript code formatting (based on StandardJS). The linter will automatically check formatting.
+
+### Dependency Management
+
+#### Adding Dependencies
+Add a production dependency:
+```bash
+npm install <package-name>
+```
+
+Add a development dependency:
+```bash
+npm install --save-dev <package-name>
+```
+
+#### Updating Dependencies
+Update all dependencies:
+```bash
+npm update
+```
+
+Update a specific dependency:
+```bash
+npm update <package-name>
+```
+
+#### Removing Dependencies
+Remove a dependency:
+```bash
+npm uninstall <package-name>
+```
+
+### Benchmarking
+Run benchmark tests:
+```bash
+npm run benchmark
+```
+
+Compare branches:
+```bash
+npm run bench
+```
+
+### Building
+Build validation schemas:
+```bash
+npm run build:validation
+```
+
+### TypeScript Support
+Test TypeScript definitions:
+```bash
+npm run test:typescript
+```
+
+## Key Development Notes
+
+### Test Framework
+- Uses Node.js built-in test runner (`node:test`)
+- Uses `borp` test runner for coverage and reporting
+- Test files located in `test/` directory with `.test.js` extension
+- Assertions use Node.js `assert` API via `t.assert`
+
+### Test Patterns
+- Each test uses `test()` from `node:test`
+- Plan-based testing with `t.plan(n)` to specify expected assertion count
+- Tests are organized by feature/module
+- Uses `t.assert.strictEqual()`, `t.assert.deepStrictEqual()`, etc.
+
+### Coverage
+- Target: 100% line coverage
+- CI enforces coverage checks
+- Generate HTML coverage report: `npm run coverage`
+
+### Important Files
+- `fastify.js` - Main entry point
+- `package.json` - Dependencies and scripts
+- `eslint.config.js` - Linting configuration
+- `test/` - Test suite directory
+- `docs/` - Documentation
+
+### Pre-Publish
+Before publishing, the following are automatically run:
+- Full test suite
+- Validation integrity check
+- Version synchronization
+
+### Environment Variables
+Check `PREPUBLISH` environment variable for pre-publish mode behavior.
+
+## Common Workflows
+
+### Making Changes
+1. Create a feature branch
+2. Make your changes
+3. Run `npm run lint:fix` to auto-fix style issues
+4. Run `npm test` to ensure all tests pass
+5. Commit your changes
+6. Open a pull request
+
+### Adding a New Feature
+1. Write tests first (TDD approach)
+2. Implement the feature
+3. Ensure test coverage is 100%
+4. Update documentation in `docs/`
+5. Run full test suite
+
+### Fixing a Bug
+1. Write a failing test that reproduces the bug
+2. Fix the bug
+3. Ensure the test now passes
+4. Run full test suite
+5. Update documentation if needed
+
+## CI/CD
+The project uses GitHub Actions for continuous integration:
+- All tests must pass
+- Coverage requirements must be met
+- Linting must pass
+- TypeScript types must be valid
