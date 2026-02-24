@@ -1,0 +1,151 @@
+---
+description: ADA-generated essential development setup and workflow instructions
+alwaysApply: true
+---
+
+# Fastify Development Setup - Quick Reference
+
+## 📦 Dependency Management
+
+### Installation
+```bash
+npm install
+```
+
+### Adding Dependencies
+```bash
+npm install <package-name>           # Production dependency
+npm install --save-dev <package-name> # Development dependency
+```
+
+### Updating Dependencies
+```bash
+npm update                            # Update all dependencies
+npm update <package-name>             # Update specific package
+```
+
+## 🏃 Running Services
+
+### Start Fastify Examples
+```bash
+node examples/<example-name>.js
+```
+
+### Benchmark Server
+```bash
+npm run benchmark
+```
+
+## 🧪 Testing
+
+### Run All Tests
+```bash
+npm test                              # Lint + unit tests + TypeScript tests
+npm run unit                          # Unit tests only (borp)
+```
+
+### Test with Coverage
+```bash
+npm run coverage                      # HTML coverage report
+npm run unit:report                   # Unit tests with coverage
+```
+
+### Watch Mode
+```bash
+npm run test:watch
+```
+
+### TypeScript Tests
+```bash
+npm run test:typescript
+```
+
+## 🔍 Code Quality
+
+### Linting
+```bash
+npm run lint                          # Run ESLint
+npm run lint:fix                      # Auto-fix ESLint issues
+npm run lint:markdown                 # Lint markdown files
+```
+
+### Code Style
+- Uses **neostandard** (ESLint config)
+- Configuration: `eslint.config.js`
+- Editor config: `.editorconfig`
+
+## 🏗️ Build Commands
+
+### Build Validation Files
+```bash
+npm run build:validation              # Generate validation artifacts
+npm run build:sync-version            # Sync version across files
+```
+
+### Validation Integrity Check
+```bash
+npm run test:validator:integrity
+```
+
+## 📊 Benchmarking
+
+### Simple Benchmark
+```bash
+npm run benchmark
+```
+
+### Parser Benchmark
+```bash
+npm run benchmark:parser
+npm run benchmark:parser:error
+```
+
+### Branch Comparison
+```bash
+npm run bench
+```
+
+## 🔧 Development Notes
+
+- **Test Framework**: borp (Node.js native test runner wrapper)
+- **Test Files**: `test/**/*.test.js`, `test/**/*.test.mjs`
+- **Assertion Style**: Node.js native `t.assert` API
+- **Logger**: Pino (built-in)
+- **TypeScript**: Type definitions in `fastify.d.ts`
+- **Coverage Tool**: c8
+- **Minimum Node.js Version**: See `package.json` engines field
+
+## 📝 Important Files
+
+- `fastify.js` - Main entry point
+- `fastify.d.ts` - TypeScript definitions
+- `package.json` - Dependencies and scripts
+- `eslint.config.js` - ESLint configuration
+- `.borp.yaml` - Test runner configuration
+- `.editorconfig` - Editor settings
+
+## 🚀 Quick Start for New Features
+
+1. Create feature branch from `main`
+2. Implement changes following existing code style
+3. Add tests in `test/` directory (use `.test.js` extension)
+4. Run `npm test` to verify
+5. Ensure all CI checks pass
+6. Submit PR for review (requires 2+ approvals)
+
+## ⚠️ Pre-Commit Checklist
+
+- [ ] Tests pass: `npm test`
+- [ ] Linting passes: `npm run lint`
+- [ ] TypeScript types valid: `npm run test:typescript`
+- [ ] Coverage maintained: `npm run coverage`
+- [ ] No force pushes to main
+- [ ] Commit follows project style
+
+## 📚 Additional Documentation
+
+- Full docs: `docs/` directory
+- Getting Started: `docs/Guides/Getting-Started.md`
+- Contributing: `CONTRIBUTING.md`, `docs/Guides/Contributing.md`
+- Testing Guide: `docs/Guides/Testing.md`
+- Plugin Guide: `docs/Guides/Write-Plugin.md`
