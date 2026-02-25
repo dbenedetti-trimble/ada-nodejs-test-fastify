@@ -350,16 +350,16 @@ test('@covers_ACFR_5_5 - Attributes use the stable semantic convention names', a
   ]
 
   expectedRequestAttrs.forEach(attr => {
-    t.assert.ok(requestAttrs.hasOwnProperty(attr), `Should have stable attribute: ${attr}`)
+    t.assert.ok(Object.hasOwn(requestAttrs, attr), `Should have stable attribute: ${attr}`)
   })
 
   expectedResponseAttrs.forEach(attr => {
-    t.assert.ok(responseAttrs.hasOwnProperty(attr), `Should have stable attribute: ${attr}`)
+    t.assert.ok(Object.hasOwn(responseAttrs, attr), `Should have stable attribute: ${attr}`)
   })
 
-  t.assert.strictEqual(requestAttrs.hasOwnProperty('http.method'), false, 'Should not use deprecated http.method')
-  t.assert.strictEqual(responseAttrs.hasOwnProperty('http.status_code'), false, 'Should not use deprecated http.status_code')
-  t.assert.strictEqual(responseAttrs.hasOwnProperty('http.response.header.content-length'), true, 'Should have response content-length')
+  t.assert.strictEqual(Object.hasOwn(requestAttrs, 'http.method'), false, 'Should not use deprecated http.method')
+  t.assert.strictEqual(Object.hasOwn(responseAttrs, 'http.status_code'), false, 'Should not use deprecated http.status_code')
+  t.assert.strictEqual(Object.hasOwn(responseAttrs, 'http.response.header.content-length'), true, 'Should have response content-length')
 })
 
 test('@covers_ACFR_5_6 - Numeric values are set as numbers, not strings', async (t) => {

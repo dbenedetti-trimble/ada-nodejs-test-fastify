@@ -189,7 +189,7 @@ test('@covers_ACFR_2_3 - Span name uses the route pattern (parameterized), not t
   })
 
   t.assert.ok(mockTracer.startSpan.mock.calls.length >= 2, 'Should create at least 2 spans (server spans) for 2 requests')
-  
+
   const serverSpans = mockTracer.startSpan.mock.calls.filter(call => call.arguments[0].includes(' /'))
   t.assert.strictEqual(serverSpans[0].arguments[0], 'GET /users/:id', 'Should use route pattern, not actual URL')
   t.assert.strictEqual(serverSpans[1].arguments[0], 'POST /items/:category/:itemId', 'Should use route pattern with multiple params')
