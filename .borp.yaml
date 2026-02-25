@@ -1,3 +1,4 @@
 files:
   - 'test/**/*.test.js'
   - 'test/**/*.test.mjs'
+  - 'plugin-otel/test/**/*.test.js'
