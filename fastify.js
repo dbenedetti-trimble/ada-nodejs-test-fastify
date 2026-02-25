@@ -574,19 +574,19 @@ function fastify (serverOptions) {
 
     if (name === 'onSend' || name === 'preSerialization' || name === 'onError' || name === 'preParsing') {
       if (fn.constructor.name === 'AsyncFunction' && fn.length === 4) {
-        throw new errorCodes.FST_ERR_HOOK_INVALID_ASYNC_HANDLER()
+        throw new errorCodes.FST_ERR_HOOK_INVALID_ASYNC_HANDLER(name)
       }
     } else if (name === 'onReady' || name === 'onListen') {
       if (fn.constructor.name === 'AsyncFunction' && fn.length !== 0) {
-        throw new errorCodes.FST_ERR_HOOK_INVALID_ASYNC_HANDLER()
+        throw new errorCodes.FST_ERR_HOOK_INVALID_ASYNC_HANDLER(name)
       }
     } else if (name === 'onRequestAbort') {
       if (fn.constructor.name === 'AsyncFunction' && fn.length !== 1) {
-        throw new errorCodes.FST_ERR_HOOK_INVALID_ASYNC_HANDLER()
+        throw new errorCodes.FST_ERR_HOOK_INVALID_ASYNC_HANDLER(name)
       }
     } else {
       if (fn.constructor.name === 'AsyncFunction' && fn.length === 3) {
-        throw new errorCodes.FST_ERR_HOOK_INVALID_ASYNC_HANDLER()
+        throw new errorCodes.FST_ERR_HOOK_INVALID_ASYNC_HANDLER(name)
       }
     }
 
