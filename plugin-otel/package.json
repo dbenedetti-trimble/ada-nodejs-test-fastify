@@ -1,0 +1,41 @@
+{
+  "name": "fastify-otel",
+  "version": "1.0.0",
+  "description": "First-party OpenTelemetry instrumentation plugin for Fastify",
+  "main": "index.js",
+  "types": "types/index.d.ts",
+  "scripts": {
+    "test": "borp --coverage",
+    "lint": "eslint ."
+  },
+  "keywords": [
+    "fastify",
+    "opentelemetry",
+    "otel",
+    "tracing",
+    "instrumentation",
+    "observability"
+  ],
+  "author": "Fastify Team",
+  "license": "MIT",
+  "peerDependencies": {
+    "@opentelemetry/api": ">=1.4.0",
+    "fastify": "^5.0.0",
+    "fastify-plugin": "^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@opentelemetry/api": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@opentelemetry/api": "^1.4.0",
+    "@opentelemetry/sdk-trace-node": "^1.23.0",
+    "fastify": "^5.0.0",
+    "fastify-plugin": "^5.0.0",
+    "proxyquire": "^2.1.3"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
