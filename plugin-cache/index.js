@@ -91,6 +91,14 @@ async function cachePlugin (fastify, opts) {
 
     const cached = cache.get(cacheKey)
     if (cached) {
+      if (cached.mustRevalidate) {
+        reply.header('x-cache', 'MISS')
+        request._cacheKey = cacheKey
+        request._cacheConfig = cacheConfig
+        request._requestNoStore = false
+        return
+      }
+
       reply.header('x-cache', 'HIT')
       reply.header('content-type', cached.headers['content-type'] || 'application/json; charset=utf-8')
       if (cached.etag) {
