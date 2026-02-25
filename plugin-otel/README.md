@@ -24,7 +24,7 @@ await fastify.register(otelPlugin, {
 
 ## Options
 
-- `exposeApi` (boolean, default: false) - Expose tracer via `fastify.otel` decorator
+- `exposeApi` (boolean, default: true) - Expose tracer via `fastify.otel` decorator
 - `hookSpans` (boolean, default: true) - Create spans for lifecycle hooks
 - `ignoreRoutes` (array, default: []) - Routes to exclude from instrumentation (strings or RegExp)
 - `spanNameFormatter` (function, default: null) - Custom span name formatter

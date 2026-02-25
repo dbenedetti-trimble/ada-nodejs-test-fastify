@@ -5,8 +5,8 @@ const { loadOtelApi } = require('./lib/otel-api')
 
 async function otelPlugin (fastify, opts) {
   const {
-    exposeApi = false,
-    hookSpans = false,
+    exposeApi = true,
+    hookSpans = true,
     ignoreRoutes = [],
     spanNameFormatter = null
   } = opts
@@ -19,8 +19,6 @@ async function otelPlugin (fastify, opts) {
   }
 
   const tracer = otel.trace.getTracer('fastify-otel-plugin', '1.0.0')
-
-  const userHookPhases = new Set()
 
   if (exposeApi) {
     fastify.decorate('otel', {
@@ -55,7 +53,7 @@ async function otelPlugin (fastify, opts) {
 
     attributes['url.scheme'] = request.protocol
     attributes['server.address'] = request.hostname
-    attributes['server.port'] = request.port || (request.protocol === 'https' ? 443 : 80)
+    attributes['server.port'] = request.socket?.localPort || (request.protocol === 'https' ? 443 : 80)
     attributes['network.protocol.version'] = request.raw.httpVersion
 
     if (request.headers['user-agent']) {
@@ -74,10 +72,6 @@ async function otelPlugin (fastify, opts) {
 
   function createHookSpan (hookName, request) {
     if (!hookSpans || !request.otelContext) {
-      return null
-    }
-
-    if (!userHookPhases.has(hookName)) {
       return null
     }
 
@@ -125,9 +119,7 @@ async function otelPlugin (fastify, opts) {
       }
     )
 
-    const spanName = spanNameFormatter
-      ? spanNameFormatter(request)
-      : `${request.method} ${request.routeOptions?.url || request.url}`
+    const spanName = request.method
 
     const attributes = collectRequestAttributes(request)
 
@@ -207,6 +199,11 @@ async function otelPlugin (fastify, opts) {
           message: request.otelServerError.message
         })
         delete request.otelServerError
+      } else if (reply.statusCode >= 500) {
+        handlerSpan.setStatus({
+          code: otel.SpanStatusCode.ERROR,
+          message: `HTTP ${reply.statusCode}`
+        })
       }
 
       handlerSpan.end()
@@ -239,6 +236,10 @@ async function otelPlugin (fastify, opts) {
 
     if (request.routeOptions?.url) {
       span.setAttribute('http.route', request.routeOptions.url)
+      const finalSpanName = spanNameFormatter
+        ? spanNameFormatter(request)
+        : `${request.method} ${request.routeOptions.url}`
+      span.updateName(finalSpanName)
     } else {
       span.setAttributes({
         'http.route': 'unmatched',
@@ -264,17 +265,6 @@ async function otelPlugin (fastify, opts) {
 
     span.end()
   })
-
-  if (hookSpans) {
-    const originalAddHook = fastify.addHook.bind(fastify)
-    fastify.addHook = function (name, fn) {
-      if (!['onRequest', 'preParsing', 'preValidation', 'preHandler', 'preSerialization', 'onSend', 'onError'].includes(name)) {
-        return originalAddHook(name, fn)
-      }
-      userHookPhases.add(name)
-      return originalAddHook(name, fn)
-    }
-  }
 }
 
 module.exports = fp(otelPlugin, {
