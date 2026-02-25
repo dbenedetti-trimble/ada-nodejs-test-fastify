@@ -25,6 +25,8 @@ test('Request Timeout Configuration', async t => {
     })
 
     t.assert.strictEqual(response.statusCode, 200)
+
+    await fastify.close()
   })
 
   // @covers_ACFR_1_1 - Routes with requestTimeout: N start a timer
@@ -45,6 +47,8 @@ test('Request Timeout Configuration', async t => {
     })
 
     t.assert.strictEqual(response.statusCode, 200)
+
+    await fastify.close()
   })
 
   // @covers_ACFR_1_4 - Invalid values throw error
@@ -104,6 +108,8 @@ test('Request Timeout Configuration', async t => {
     })
 
     t.assert.strictEqual(response.statusCode, 200)
+
+    await fastify.close()
   })
 
   // @covers_ACFR_2_1 - routeTimeout sets default for all routes
@@ -124,6 +130,8 @@ test('Request Timeout Configuration', async t => {
     })
 
     t.assert.strictEqual(response.statusCode, 200)
+
+    await fastify.close()
   })
 
   // @covers_ACFR_2_2 - Per-route requestTimeout overrides routeTimeout
@@ -144,6 +152,8 @@ test('Request Timeout Configuration', async t => {
     })
 
     t.assert.strictEqual(response.statusCode, 200)
+
+    await fastify.close()
   })
 
   // @covers_ACFR_2_3 - requestTimeout: 0 disables even when routeTimeout is set
@@ -164,6 +174,8 @@ test('Request Timeout Configuration', async t => {
     })
 
     t.assert.strictEqual(response.statusCode, 200)
+
+    await fastify.close()
   })
 
   // @covers_ACFR_2_4 - No timer when neither is set
@@ -184,6 +196,8 @@ test('Request Timeout Configuration', async t => {
     })
 
     t.assert.strictEqual(response.statusCode, 200)
+
+    await fastify.close()
   })
 
   // @covers_ACFR_2_5 - Exposed via fastify.initialConfig.routeTimeout
@@ -196,9 +210,13 @@ test('Request Timeout Configuration', async t => {
 
     t.assert.strictEqual(fastify.initialConfig.routeTimeout, 30000)
 
+    await fastify.close()
+
     const fastify2 = Fastify()
     await fastify2.ready()
     t.assert.strictEqual(fastify2.initialConfig.routeTimeout, 0)
+
+    await fastify2.close()
   })
 
   // @covers_ACFR_2_6 - Must be non-negative integer
@@ -236,6 +254,8 @@ test('Request Timeout Configuration', async t => {
     })
 
     t.assert.strictEqual(response.statusCode, 200)
+
+    await fastify.close()
   })
 
   // @covers_ACFR_7_2 - Returns route-level value when set, otherwise global
@@ -267,6 +287,8 @@ test('Request Timeout Configuration', async t => {
       url: '/override'
     })
     t.assert.strictEqual(response.statusCode, 200)
+
+    await fastify.close()
   })
 
   // @covers_ACFR_7_3 - Returns undefined when no timeout configured
@@ -287,6 +309,8 @@ test('Request Timeout Configuration', async t => {
     })
 
     t.assert.strictEqual(response.statusCode, 200)
+
+    await fastify.close()
   })
 
   // @covers_ACFR_7_4 - Returns 0 when explicitly disabled
@@ -312,6 +336,8 @@ test('Request Timeout Configuration', async t => {
     })
     t.assert.strictEqual(response1.statusCode, 200)
 
+    await fastify.close()
+
     const fastify2 = Fastify({ routeTimeout: 0 })
     fastify2.get('/', async (request, reply) => {
       t.assert.strictEqual(request.routeOptions.requestTimeout, undefined)
@@ -320,6 +346,8 @@ test('Request Timeout Configuration', async t => {
     await fastify2.ready()
     const response2 = await fastify2.inject({ method: 'GET', url: '/' })
     t.assert.strictEqual(response2.statusCode, 200)
+
+    await fastify2.close()
   })
 
   // @unit_test - Test multiple route methods with requestTimeout
@@ -345,6 +373,8 @@ test('Request Timeout Configuration', async t => {
 
     response = await fastify.inject({ method: 'POST', url: '/' })
     t.assert.strictEqual(response.statusCode, 200)
+
+    await fastify.close()
   })
 
   // @integration_test - Test requestTimeout option follows bodyLimit pattern
@@ -372,5 +402,7 @@ test('Request Timeout Configuration', async t => {
 
     await fastify.inject({ method: 'GET', url: '/route1' })
     await fastify.inject({ method: 'GET', url: '/route2' })
+
+    await fastify.close()
   })
 })
