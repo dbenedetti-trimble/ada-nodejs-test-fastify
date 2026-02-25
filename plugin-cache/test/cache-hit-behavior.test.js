@@ -128,7 +128,7 @@ test('@covers_ACFR_4_6 @unit_test: Cache hit skips the route handler entirely (v
   t.assert.strictEqual(handlerCalls, 1, 'handler NOT called on cache hit')
   t.assert.strictEqual(res2.headers['x-cache'], 'HIT')
 
-  const res3 = await fastify.inject({ method: 'GET', url: '/skip' })
+  await fastify.inject({ method: 'GET', url: '/skip' })
   t.assert.strictEqual(handlerCalls, 1, 'handler still NOT called on subsequent cache hits')
 
   await fastify.close()

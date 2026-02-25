@@ -8,7 +8,6 @@ const LRUCache = require('../lib/lru-cache')
 function createTestCachePlugin (preloadedCache = null) {
   return fp(async (fastify, opts) => {
     const cache = preloadedCache || new LRUCache(opts.maxItems ?? 1000)
-    const defaultTtl = opts.ttl ?? 60000
     const methods = new Set((opts.methods ?? ['GET']).map(m => m.toUpperCase()))
     const globalVary = (opts.vary ?? []).map(h => h.toLowerCase())
 

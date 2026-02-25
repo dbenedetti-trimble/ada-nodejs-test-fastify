@@ -2,6 +2,8 @@
 
 const fp = require('fastify-plugin')
 const LRUCache = require('./lib/lru-cache')
+const { generateETag } = require('./lib/etag')
+const { parseRequestCacheControl, parseResponseCacheControl } = require('./lib/cache-control')
 
 async function cachePlugin (fastify, opts) {
   const cache = new LRUCache(opts.maxItems ?? 1000)
@@ -75,8 +77,17 @@ async function cachePlugin (fastify, opts) {
       return
     }
 
+    const requestCC = parseRequestCacheControl(request)
     const routeVary = Array.isArray(cacheConfig.vary) ? cacheConfig.vary.map(h => h.toLowerCase()) : []
     const cacheKey = deriveCacheKey(request, routeVary)
+
+    if (requestCC.noCache || requestCC.noStore) {
+      reply.header('x-cache', 'MISS')
+      request._cacheKey = cacheKey
+      request._cacheConfig = cacheConfig
+      request._requestNoStore = requestCC.noStore
+      return
+    }
 
     const cached = cache.get(cacheKey)
     if (cached) {
@@ -118,7 +129,22 @@ async function cachePlugin (fastify, opts) {
       return payload
     }
 
-    const ttl = typeof cacheConfig === 'object' && cacheConfig.ttl ? cacheConfig.ttl : defaultTtl
+    const responseCC = parseResponseCacheControl(reply)
+
+    if (request._requestNoStore) {
+      return payload
+    }
+
+    if (responseCC.noStore || responseCC.private) {
+      return payload
+    }
+
+    const etag = generateETag(payload)
+    reply.header('etag', etag)
+
+    const ttl = responseCC.ttlOverride !== null
+      ? responseCC.ttlOverride
+      : (typeof cacheConfig === 'object' && cacheConfig.ttl ? cacheConfig.ttl : defaultTtl)
     const expiry = Date.now() + ttl
 
     const entry = {
@@ -127,8 +153,9 @@ async function cachePlugin (fastify, opts) {
       headers: {
         'content-type': reply.getHeader('content-type') || 'application/json; charset=utf-8'
       },
-      etag: null,
-      expiry
+      etag,
+      expiry,
+      mustRevalidate: responseCC.noCache
     }
 
     cache.set(request._cacheKey, entry)
