@@ -226,10 +226,6 @@ async function otelPlugin (fastify, opts) {
     if (request.otelSpan) {
       request.otelServerError = error
       request.otelSpan.recordException(error)
-      request.otelSpan.setStatus({
-        code: otel.SpanStatusCode.ERROR,
-        message: error.message
-      })
     }
   })
 
@@ -252,10 +248,7 @@ async function otelPlugin (fastify, opts) {
         : `${request.method} ${request.routeOptions.url}`
       span.updateName(finalSpanName)
     } else {
-      span.setAttributes({
-        'http.route': 'unmatched',
-        'error.type': '404'
-      })
+      span.setAttribute('http.route', 'unmatched')
       span.updateName(`${request.method}`)
     }
 
