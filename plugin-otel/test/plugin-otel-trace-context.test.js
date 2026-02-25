@@ -318,7 +318,7 @@ test('@covers_ACFR_7_5 - Child spans created inside the handler are parented to 
   })
 
   t.assert.strictEqual(response.statusCode, 200)
-  t.assert.strictEqual(mockTracer.startSpan.mock.calls.length, 2, 'Should create server span and child span')
+  t.assert.strictEqual(mockTracer.startSpan.mock.calls.length, 3, 'Should create server span, handler span, and child span')
   t.assert.strictEqual(mockChildSpan.end.mock.calls.length, 1, 'Child span should be ended')
 })
 
@@ -407,7 +407,7 @@ test('@covers_ACFR_7_6 - Context propagation works correctly with both async and
   t.assert.strictEqual(promiseResponse.statusCode, 200)
   t.assert.strictEqual(promiseResponse.json().type, 'promise')
 
-  t.assert.strictEqual(mockTracer.startSpan.mock.calls.length, 3, 'Should create spans for all handler types')
+  t.assert.strictEqual(mockTracer.startSpan.mock.calls.length, 6, 'Should create server and handler spans for all handler types')
   t.assert.strictEqual(mockOtelApi.propagation.extract.mock.calls.length, 3, 'Should extract context for all requests')
 
   mockTracer.startSpan.mock.calls.forEach((call, index) => {

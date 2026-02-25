@@ -1,6 +1,6 @@
 import { expectType, expectAssignable } from 'tsd'
 import fastify, { FastifyInstance, FastifyRequest } from '../../fastify'
-import otelPlugin, { OtelPluginOptions } from '../../index'
+import otelPlugin, { OtelPluginOptions } from '../../plugin-otel'
 
 const app: FastifyInstance = fastify()
 
