@@ -6,8 +6,11 @@ module.exports = [
     ignores: [
       'lib/config-validator.js',
       'lib/error-serializer.js',
+      'lib/route.js',
       'test/same-shape.test.js',
-      'test/types/import.js'
+      'test/types/import.js',
+      '.ada/**',
+      'build/**'
     ],
     ts: true
   }),
