@@ -318,6 +318,8 @@ test('Request Timeout Configuration', async t => {
       return { hello: 'world' }
     })
     await fastify2.ready()
+    const response2 = await fastify2.inject({ method: 'GET', url: '/' })
+    t.assert.strictEqual(response2.statusCode, 200)
   })
 
   // @unit_test - Test multiple route methods with requestTimeout
@@ -367,5 +369,8 @@ test('Request Timeout Configuration', async t => {
     })
 
     await fastify.ready()
+
+    await fastify.inject({ method: 'GET', url: '/route1' })
+    await fastify.inject({ method: 'GET', url: '/route2' })
   })
 })
