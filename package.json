@@ -167,6 +167,8 @@
   ],
   "devDependencies": {
     "@jsumners/line-reporter": "^1.0.1",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/sdk-trace-node": "^2.5.1",
     "@sinonjs/fake-timers": "^11.2.2",
     "@stylistic/eslint-plugin": "^5.1.0",
     "@stylistic/eslint-plugin-js": "^4.1.0",
