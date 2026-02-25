@@ -456,8 +456,8 @@ function fastify (serverOptions) {
 
   return fastify
 
-  function throwIfAlreadyStarted (msg) {
-    if (fastify[kState].started) throw new FST_ERR_INSTANCE_ALREADY_LISTENING(msg)
+  function throwIfAlreadyStarted (operationName) {
+    if (fastify[kState].started) throw new FST_ERR_INSTANCE_ALREADY_LISTENING(operationName)
   }
 
   // HTTP injection handling
@@ -566,7 +566,7 @@ function fastify (serverOptions) {
 
   // wrapper that we expose to the user for hooks handling
   function addHook (name, fn) {
-    throwIfAlreadyStarted('Cannot call "addHook"!')
+    throwIfAlreadyStarted('addHook')
 
     if (fn == null) {
       throw new errorCodes.FST_ERR_HOOK_INVALID_HANDLER(name, fn)
@@ -574,19 +574,19 @@ function fastify (serverOptions) {
 
     if (name === 'onSend' || name === 'preSerialization' || name === 'onError' || name === 'preParsing') {
       if (fn.constructor.name === 'AsyncFunction' && fn.length === 4) {
-        throw new errorCodes.FST_ERR_HOOK_INVALID_ASYNC_HANDLER()
+        throw new errorCodes.FST_ERR_HOOK_INVALID_ASYNC_HANDLER(name)
       }
     } else if (name === 'onReady' || name === 'onListen') {
       if (fn.constructor.name === 'AsyncFunction' && fn.length !== 0) {
-        throw new errorCodes.FST_ERR_HOOK_INVALID_ASYNC_HANDLER()
+        throw new errorCodes.FST_ERR_HOOK_INVALID_ASYNC_HANDLER(name)
       }
     } else if (name === 'onRequestAbort') {
       if (fn.constructor.name === 'AsyncFunction' && fn.length !== 1) {
-        throw new errorCodes.FST_ERR_HOOK_INVALID_ASYNC_HANDLER()
+        throw new errorCodes.FST_ERR_HOOK_INVALID_ASYNC_HANDLER(name)
       }
     } else {
       if (fn.constructor.name === 'AsyncFunction' && fn.length === 3) {
-        throw new errorCodes.FST_ERR_HOOK_INVALID_ASYNC_HANDLER()
+        throw new errorCodes.FST_ERR_HOOK_INVALID_ASYNC_HANDLER(name)
       }
     }
 
@@ -614,7 +614,7 @@ function fastify (serverOptions) {
 
   // wrapper that we expose to the user for schemas handling
   function addSchema (schema) {
-    throwIfAlreadyStarted('Cannot call "addSchema"!')
+    throwIfAlreadyStarted('addSchema')
     this[kSchemaController].add(schema)
     this[kChildren].forEach(child => child.addSchema(schema))
     return this
@@ -690,14 +690,14 @@ function fastify (serverOptions) {
   }
 
   function setNotFoundHandler (opts, handler) {
-    throwIfAlreadyStarted('Cannot call "setNotFoundHandler"!')
+    throwIfAlreadyStarted('setNotFoundHandler')
 
     fourOhFour.setNotFoundHandler.call(this, opts, handler, avvio, router.routeHandler)
     return this
   }
 
   function setValidatorCompiler (validatorCompiler) {
-    throwIfAlreadyStarted('Cannot call "setValidatorCompiler"!')
+    throwIfAlreadyStarted('setValidatorCompiler')
     this[kSchemaController].setValidatorCompiler(validatorCompiler)
     return this
   }
