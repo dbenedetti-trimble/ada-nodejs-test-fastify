@@ -44,6 +44,7 @@ const defaultInitOptions = {
   exposeHeadRoutes: true,
   useSemicolonDelimiter: false,
   allowErrorHandlerOverride: true, // TODO: set to false in v6
+  routeTimeout: 0,
   routerOptions: {
     ignoreTrailingSlash: false,
     ignoreDuplicateSlashes: false,
@@ -109,6 +110,7 @@ const schema = {
     http2SessionTimeout: { type: 'integer', default: defaultInitOptions.http2SessionTimeout },
     exposeHeadRoutes: { type: 'boolean', default: defaultInitOptions.exposeHeadRoutes },
     useSemicolonDelimiter: { type: 'boolean', default: defaultInitOptions.useSemicolonDelimiter },
+    routeTimeout: { type: 'integer', default: defaultInitOptions.routeTimeout },
     routerOptions: {
       type: 'object',
       additionalProperties: true,

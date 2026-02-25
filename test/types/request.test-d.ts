@@ -185,3 +185,10 @@ FastifyInstance<RawServerDefault, RawRequestDefaultExpression, RawReplyDefaultEx
 >(serverWithCustomLogger)
 
 serverWithCustomLogger.get('/get', getHandlerWithCustomLogger)
+
+// Per-route request timeout: request.signal
+const serverForSignal = fastify()
+serverForSignal.get('/signal', { requestTimeout: 5000 }, async (request) => {
+  expectType<AbortSignal>(request.signal)
+  expectType<number | undefined>(request.routeOptions.requestTimeout)
+})
