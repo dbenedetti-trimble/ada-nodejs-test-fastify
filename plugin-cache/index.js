@@ -11,10 +11,15 @@ async function cachePlugin (fastify, opts) {
   const methods = new Set((opts.methods ?? ['GET']).map(m => m.toUpperCase()))
   const globalVary = (opts.vary ?? []).map(h => h.toLowerCase())
 
+  function getEffectiveVaryHeaders (routeConfig) {
+    const routeVary = Array.isArray(routeConfig.vary) ? routeConfig.vary.map(h => h.toLowerCase()) : []
+    return [...new Set([...globalVary, ...routeVary])]
+  }
+
   function getCacheKey (request, varyHeaders) {
     const method = request.method
     const url = request.url
-    const varyParts = varyHeaders.map(header => {
+    const varyParts = [...varyHeaders].sort().map(header => {
       const value = request.headers[header] || ''
       return `${header}:${value}`
     }).join('|')
@@ -38,8 +43,7 @@ async function cachePlugin (fastify, opts) {
       return
     }
 
-    const routeVary = Array.isArray(routeConfig.vary) ? routeConfig.vary.map(h => h.toLowerCase()) : []
-    const varyHeaders = [...new Set([...globalVary, ...routeVary])]
+    const varyHeaders = getEffectiveVaryHeaders(routeConfig)
     const cacheKey = getCacheKey(request, varyHeaders)
 
     const entry = cache.get(cacheKey)
@@ -104,14 +108,13 @@ async function cachePlugin (fastify, opts) {
       return payload
     }
 
-    const routeVary = Array.isArray(routeConfig.vary) ? routeConfig.vary.map(h => h.toLowerCase()) : []
-    const varyHeaders = [...new Set([...globalVary, ...routeVary])]
+    const varyHeaders = getEffectiveVaryHeaders(routeConfig)
     const cacheKey = getCacheKey(request, varyHeaders)
 
     const body = payload
     const etag = generateETag(body)
 
-    const routeTtl = typeof routeConfig === 'object' && routeConfig.ttl ? routeConfig.ttl : defaultTtl
+    const routeTtl = (typeof routeConfig === 'object' && routeConfig.ttl) ? routeConfig.ttl : defaultTtl
     const ttl = getTTL(responseCacheControl, routeTtl)
     const expiry = Date.now() + ttl
 
@@ -145,7 +148,9 @@ async function cachePlugin (fastify, opts) {
     purgeByPrefix (prefix) {
       let count = 0
       for (const key of cache.keys()) {
-        if (key.includes(`|${prefix}`)) {
+        const parts = key.split('|')
+        const url = parts[1]
+        if (url && url.startsWith(prefix)) {
           cache.delete(key)
           count++
         }

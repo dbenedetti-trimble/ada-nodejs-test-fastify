@@ -49,7 +49,7 @@ function getTTL (responseCacheControl, defaultTtl) {
     : responseCacheControl
 
   if (directives['no-cache']) {
-    return -1
+    return 0
   }
 
   if (directives['s-maxage'] !== undefined) {
