@@ -1,1 +1,1 @@
-export const FSTDEP022: any;
+export const FSTDEP022: any

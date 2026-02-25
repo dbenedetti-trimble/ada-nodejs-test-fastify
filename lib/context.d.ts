@@ -1,5 +1,5 @@
 declare class Context {
-  constructor(options: {
+  constructor (options: {
     schema: any;
     handler: Function;
     config: any;
@@ -18,7 +18,7 @@ declare class Context {
     prefixTrailingSlash: string;
     server: any;
     isFastify: boolean;
-  });
+  })
 }
 
-export = Context;
+export = Context

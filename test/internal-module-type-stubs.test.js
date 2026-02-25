@@ -42,7 +42,7 @@ test(`${TEST_TAGS.ACFR_3_1} - Every module imported by route.ts has a correspond
 
 test(`${TEST_TAGS.ACFR_3_2} - Each stub exports only the symbols that route.js uses`, async (t) => {
   const routePath = path.join(__dirname, '..', 'lib', 'route.js')
-  const routeContent = fs.readFileSync(routePath, 'utf8')
+  fs.readFileSync(routePath, 'utf8')
 
   // Check context.d.ts exports Context
   const contextStub = fs.readFileSync(path.join(__dirname, '..', 'lib', 'context.d.ts'), 'utf8')
@@ -147,7 +147,7 @@ test(`${TEST_TAGS.ACFR_3_3} - Stubs use any for complex internal types`, async (
 
   for (const stub of stubFiles) {
     const content = fs.readFileSync(stub.path, 'utf8')
-    
+
     // Check that the stub uses 'any' type (pragmatic typing approach)
     // This is acceptable for internal types that are not worth fully specifying
     if (stub.name !== 'symbols') { // symbols only has symbol types
@@ -162,7 +162,7 @@ test(`${TEST_TAGS.ACFR_3_3} - Stubs use any for complex internal types`, async (
 test(`${TEST_TAGS.ACFR_3_4} - Stubs do not conflict with public types/ declarations`, async (t) => {
   // Check that .d.ts stubs in lib/ don't redefine types from types/ directory
   const typesDir = path.join(__dirname, '..', 'types')
-  
+
   // The main type definitions are in types/ directory
   // Our lib/ stubs should be minimal and not conflict with them
   assert.ok(
@@ -175,7 +175,7 @@ test(`${TEST_TAGS.ACFR_3_4} - Stubs do not conflict with public types/ declarati
   for (const module of REQUIRED_MODULES) {
     const stubPath = path.join(__dirname, '..', 'lib', `${module}.d.ts`)
     const content = fs.readFileSync(stubPath, 'utf8')
-    
+
     // Stubs should be concise (internal use only)
     // They should not duplicate the detailed type definitions in types/
     const lines = content.split('\n').filter(line => line.trim() !== '')
@@ -188,7 +188,7 @@ test(`${TEST_TAGS.ACFR_3_4} - Stubs do not conflict with public types/ declarati
 
 test(`${TEST_TAGS.ACFR_3_5} - Type stubs compile without TypeScript errors`, async (t) => {
   const { execSync } = require('node:child_process')
-  
+
   try {
     // Verify all stub files compile without errors
     const stubFiles = REQUIRED_MODULES.map(module => `lib/${module}.d.ts`).join(' ')
@@ -197,7 +197,7 @@ test(`${TEST_TAGS.ACFR_3_5} - Type stubs compile without TypeScript errors`, asy
       encoding: 'utf8',
       stdio: 'pipe'
     })
-    
+
     // If we reach here, compilation succeeded
     assert.ok(true, 'All type stubs compile without errors')
   } catch (error) {

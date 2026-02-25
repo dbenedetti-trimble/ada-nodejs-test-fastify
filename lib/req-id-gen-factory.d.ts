@@ -1,1 +1,1 @@
-export function getGenReqId(contextServer: any, req: any): string;
+export function getGenReqId (contextServer: any, req: any): string

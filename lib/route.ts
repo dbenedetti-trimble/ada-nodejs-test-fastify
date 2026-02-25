@@ -291,7 +291,10 @@ function buildRouting (options: any): RoutingApi {
 
     return this
 
-    function addNewRoute (this: any, { path, prefixing = false, isFastify = false }: { path: string, prefixing?: boolean, isFastify?: boolean }): void {
+    function addNewRoute (
+      this: any,
+      { path, prefixing = false, isFastify = false }: { path: string, prefixing?: boolean, isFastify?: boolean }
+    ): void {
       const url: string = prefix + path
 
       opts.url = url
