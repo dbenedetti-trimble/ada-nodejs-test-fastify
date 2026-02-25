@@ -104,7 +104,7 @@ test('@covers_ACFR_1_5: Plugin uses fastify-plugin wrapper so hooks apply global
   await fastify.inject({ method: 'GET', url: '/test' })
 
   const spans = exporter.getFinishedSpans()
-  t.assert.strictEqual(spans.length, 1, 'span should be created even in encapsulated context')
+  t.assert.strictEqual(spans.length, 2, 'spans should be created even in encapsulated context (server + handler)')
 })
 
 test('@covers_ACFR_1_6: ignoreRoutes patterns exclude matching routes from instrumentation', async (t) => {
@@ -140,8 +140,8 @@ test('@covers_ACFR_1_6: ignoreRoutes patterns exclude matching routes from instr
   await fastify.inject({ method: 'GET', url: '/test' })
 
   const spans = exporter.getFinishedSpans()
-  t.assert.strictEqual(spans.length, 1, 'only /test should create a span')
-  t.assert.strictEqual(spans[0].name, 'GET /test', 'span should be for /test route')
+  t.assert.strictEqual(spans.length, 2, 'only /test should create spans (server + handler)')
+  t.assert.strictEqual(spans.filter(s => s.name === 'GET /test').length, 1, 'span should be for /test route')
 })
 
 test('@covers_ACFR_8_1, @covers_ACFR_8_2: Fastify starts and serves requests normally when OTel not installed', async (t) => {
