@@ -3,8 +3,9 @@
 const { createHash } = require('node:crypto')
 
 function generateETag (body) {
+  const content = Buffer.isBuffer(body) ? body : (typeof body === 'string' ? body : JSON.stringify(body))
   const hash = createHash('sha256')
-    .update(typeof body === 'string' ? body : JSON.stringify(body))
+    .update(content)
     .digest('hex')
     .slice(0, 16)
   return 'W/"' + hash + '"'

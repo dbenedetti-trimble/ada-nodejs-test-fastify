@@ -114,7 +114,7 @@ async function cachePlugin (fastify, opts) {
     const body = payload
     const etag = generateETag(body)
 
-    const routeTtl = (typeof routeConfig === 'object' && routeConfig.ttl) ? routeConfig.ttl : defaultTtl
+    const routeTtl = (typeof routeConfig === 'object' && routeConfig.ttl !== undefined) ? routeConfig.ttl : defaultTtl
     const ttl = getTTL(responseCacheControl, routeTtl)
     const expiry = Date.now() + ttl
 
