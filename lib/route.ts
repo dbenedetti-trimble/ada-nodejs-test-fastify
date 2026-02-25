@@ -1,3 +1,8 @@
+/**
+ * @generated
+ * This file is compiled from lib/route.ts - DO NOT EDIT DIRECTLY
+ * Run `npm run build:ts` to regenerate
+ */
 'use strict'
 
 import FindMyWay = require('find-my-way')
