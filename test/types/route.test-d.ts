@@ -551,3 +551,11 @@ expectType<FastifyInstance>(fastify().route({
     expectAssignable<string | Array<string>>(req.routeOptions.method)
   }
 }))
+
+// Per-route requestTimeout option
+expectType<FastifyInstance>(fastify().route({
+  url: '/timeout',
+  method: 'GET',
+  requestTimeout: 5000,
+  handler: () => {}
+}))
