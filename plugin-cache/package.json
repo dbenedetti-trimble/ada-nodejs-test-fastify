@@ -1,0 +1,22 @@
+{
+  "name": "@fastify/response-cache",
+  "version": "1.0.0",
+  "description": "Fastify plugin for response caching with ETag support",
+  "main": "index.js",
+  "types": "types/index.d.ts",
+  "scripts": {
+    "test": "borp test/**/*.test.js"
+  },
+  "keywords": ["fastify", "cache", "etag", "response-cache"],
+  "author": "Fastify",
+  "license": "MIT",
+  "peerDependencies": {
+    "fastify": "^5.0.0"
+  },
+  "dependencies": {
+    "fastify-plugin": "^5.0.0"
+  },
+  "devDependencies": {
+    "borp": "^1.0.0"
+  }
+}
