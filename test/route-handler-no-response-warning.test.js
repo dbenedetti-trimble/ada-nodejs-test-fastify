@@ -6,7 +6,7 @@ const { FSTWRN005 } = require('../lib/warnings')
 const wrapThenable = require('../lib/wrap-thenable')
 
 test('should emit warning when async handler returns undefined without sending response', (t, done) => {
-  t.plan(6)
+  t.plan(5)
   const fastify = Fastify()
 
   let warningEmitted = false
@@ -32,8 +32,9 @@ test('should emit warning when async handler returns undefined without sending r
   fastify.inject({
     method: 'GET',
     url: '/no-response'
-  }, (err, response) => {
-    t.assert.ifError(err)
+  })
+
+  setImmediate(() => {
     t.assert.ok(warningEmitted)
     done()
   })
@@ -134,7 +135,7 @@ test('should NOT emit warning when handler returns reply', (t, done) => {
 })
 
 test('should include HTTP method and route URL pattern in warning message', (t, done) => {
-  t.plan(4)
+  t.plan(3)
   const fastify = Fastify()
 
   let warningMessage = ''
@@ -156,8 +157,9 @@ test('should include HTTP method and route URL pattern in warning message', (t, 
   fastify.inject({
     method: 'POST',
     url: '/api/users/123'
-  }, (err, response) => {
-    t.assert.ifError(err)
+  })
+
+  setImmediate(() => {
     t.assert.ok(warningMessage.includes('POST'))
     t.assert.ok(warningMessage.includes('/api/users/:id'))
     t.assert.ok(warningMessage.includes('resolved without sending a response'))
@@ -166,7 +168,7 @@ test('should include HTTP method and route URL pattern in warning message', (t, 
 })
 
 test('should emit warning only once per route pattern', (t, done) => {
-  t.plan(3)
+  t.plan(1)
   const fastify = Fastify()
 
   let warningCount = 0
@@ -188,22 +190,21 @@ test('should emit warning only once per route pattern', (t, done) => {
   fastify.inject({
     method: 'GET',
     url: '/dedupe-test'
-  }, (err, response) => {
-    t.assert.ifError(err)
+  })
 
-    fastify.inject({
-      method: 'GET',
-      url: '/dedupe-test'
-    }, (err, response) => {
-      t.assert.ifError(err)
-      t.assert.strictEqual(warningCount, 1, 'warning should only fire once')
-      done()
-    })
+  fastify.inject({
+    method: 'GET',
+    url: '/dedupe-test'
+  })
+
+  setImmediate(() => {
+    t.assert.strictEqual(warningCount, 1, 'warning should only fire once')
+    done()
   })
 })
 
 test('should work correctly with different HTTP methods', (t, done) => {
-  t.plan(5)
+  t.plan(3)
   const fastify = Fastify()
 
   const warnings = []
@@ -228,18 +229,17 @@ test('should work correctly with different HTTP methods', (t, done) => {
   fastify.inject({
     method: 'PUT',
     url: '/method-test'
-  }, (err, response) => {
-    t.assert.ifError(err)
+  })
 
-    fastify.inject({
-      method: 'DELETE',
-      url: '/method-test-2'
-    }, (err, response) => {
-      t.assert.ifError(err)
-      t.assert.strictEqual(warnings.length, 2)
-      t.assert.ok(warnings.some(msg => msg.includes('PUT')))
-      t.assert.ok(warnings.some(msg => msg.includes('DELETE')))
-      done()
-    })
+  fastify.inject({
+    method: 'DELETE',
+    url: '/method-test-2'
+  })
+
+  setImmediate(() => {
+    t.assert.strictEqual(warnings.length, 2)
+    t.assert.ok(warnings.some(msg => msg.includes('PUT')))
+    t.assert.ok(warnings.some(msg => msg.includes('DELETE')))
+    done()
   })
 })
