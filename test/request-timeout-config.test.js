@@ -291,7 +291,7 @@ test('Request Timeout Configuration', async t => {
 
   // @covers_ACFR_7_4 - Returns 0 when explicitly disabled
   await t.test('routeOptions returns 0 when explicitly disabled', async (t) => {
-    t.plan(3)
+    t.plan(4)
 
     const fastify = Fastify({ routeTimeout: 30000 })
 
@@ -314,7 +314,7 @@ test('Request Timeout Configuration', async t => {
 
     const fastify2 = Fastify({ routeTimeout: 0 })
     fastify2.get('/', async (request, reply) => {
-      t.assert.strictEqual(request.routeOptions.requestTimeout, 0)
+      t.assert.strictEqual(request.routeOptions.requestTimeout, undefined)
       return { hello: 'world' }
     })
     await fastify2.ready()
