@@ -29,12 +29,13 @@ async function otelPlugin (fastify, opts) {
   }
 
   function shouldIgnoreRoute (url) {
+    const urlWithoutQuery = url.split('?')[0]
     return ignoreRoutes.some(pattern => {
       if (typeof pattern === 'string') {
-        return url === pattern
+        return urlWithoutQuery === pattern
       }
       if (pattern instanceof RegExp) {
-        return pattern.test(url)
+        return pattern.test(urlWithoutQuery)
       }
       return false
     })

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "OpenTelemetry instrumentation plugin for Fastify",
   "main": "index.js",
+  "types": "types/index.d.ts",
   "scripts": {
     "test": "borp"
   },

@@ -73,14 +73,14 @@ test('@covers_ACFR_6_3: Server span status is set to ERROR for 5xx responses', a
   await fastify.register(otelPlugin)
 
   fastify.get('/server-error', async (request, reply) => {
-    reply.code(500).send({ error: 'Internal Server Error' })
+    return reply.code(500).send({ error: 'Internal Server Error' })
   })
 
   fastify.get('/bad-gateway', async (request, reply) => {
-    reply.code(502).send({ error: 'Bad Gateway' })
+    return reply.code(502).send({ error: 'Bad Gateway' })
   })
 
-  t.after(() => { fastify.close() })
+  t.after(async () => { await fastify.close() })
 
   await fastify.inject({ method: 'GET', url: '/server-error' })
   await fastify.inject({ method: 'GET', url: '/bad-gateway' })
@@ -102,14 +102,14 @@ test('@covers_ACFR_6_4: Server span status is UNSET for 4xx responses', async (t
   await fastify.register(otelPlugin)
 
   fastify.get('/not-found', async (request, reply) => {
-    reply.code(404).send({ error: 'Not Found' })
+    return reply.code(404).send({ error: 'Not Found' })
   })
 
   fastify.get('/bad-request', async (request, reply) => {
-    reply.code(400).send({ error: 'Bad Request' })
+    return reply.code(400).send({ error: 'Bad Request' })
   })
 
-  t.after(() => { fastify.close() })
+  t.after(async () => { await fastify.close() })
 
   await fastify.inject({ method: 'GET', url: '/not-found' })
   await fastify.inject({ method: 'GET', url: '/bad-request' })
