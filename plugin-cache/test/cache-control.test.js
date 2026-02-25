@@ -185,8 +185,8 @@ test('@covers_ACFR_7_6 @unit_test Response with Cache-Control: no-cache is store
   t.assert.strictEqual(statsAfterFirst.items, 1)
 
   const res2 = await fastify.inject({ method: 'GET', url: '/no-cache' })
-  t.assert.strictEqual(res2.headers['x-cache'], 'HIT')
-  t.assert.strictEqual(res2.json().count, 1)
+  t.assert.strictEqual(res2.headers['x-cache'], 'MISS')
+  t.assert.strictEqual(res2.json().count, 2)
 
   await fastify.close()
 })
