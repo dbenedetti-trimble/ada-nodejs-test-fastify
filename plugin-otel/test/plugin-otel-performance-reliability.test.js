@@ -2,7 +2,7 @@
 
 const t = require('node:test')
 const test = t.test
-const Fastify = require('../fastify')
+const Fastify = require('../../fastify')
 const proxyquire = require('proxyquire')
 
 test('@covers_ACNFR_1_1 @covers_ACNFR_1_2 @covers_ACNFR_1_3 - Zero overhead benchmark validation', async (t) => {

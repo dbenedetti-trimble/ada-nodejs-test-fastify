@@ -1,9 +1,9 @@
 /// <reference types="node" />
 
-import { FastifyPluginCallback } from './types/plugin'
-import { FastifyRequest } from './types/request'
+import { FastifyPluginCallback } from 'fastify'
+import { FastifyRequest } from 'fastify'
 
-declare module './fastify' {
+declare module 'fastify' {
   interface FastifyInstance {
     otel: {
       tracer: any

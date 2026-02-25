@@ -2,7 +2,7 @@
 
 const t = require('node:test')
 const test = t.test
-const Fastify = require('../fastify')
+const Fastify = require('../../fastify')
 const proxyquire = require('proxyquire')
 
 test('@covers_ACFR_1_1 - Plugin registers without errors when @opentelemetry/api is installed and SDK configured', async (t) => {

@@ -2,7 +2,7 @@
 
 const t = require('node:test')
 const test = t.test
-const Fastify = require('../fastify')
+const Fastify = require('../../fastify')
 const proxyquire = require('proxyquire')
 
 test('@covers_ACFR_4_1 - With hookSpans: true, each hook phase that executes produces a child span', async (t) => {

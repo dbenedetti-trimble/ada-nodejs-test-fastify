@@ -2,7 +2,7 @@
 
 const t = require('node:test')
 const test = t.test
-const Fastify = require('../fastify')
+const Fastify = require('../../fastify')
 const proxyquire = require('proxyquire')
 
 test('@covers_ACFR_6_1 - Handler exceptions are recorded on the handler span via recordException', async (t) => {

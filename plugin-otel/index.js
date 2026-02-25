@@ -58,7 +58,7 @@ async function otelPlugin (fastify, opts) {
             },
             (error) => {
               handlerSpan.recordException(error)
-              handlerSpan.setStatus({ code: SpanStatusCode.ERROR })
+              handlerSpan.setStatus({ code: SpanStatusCode.ERROR, message: error.message })
               handlerSpan.end()
               throw error
             }
@@ -69,7 +69,7 @@ async function otelPlugin (fastify, opts) {
         return result
       } catch (error) {
         handlerSpan.recordException(error)
-        handlerSpan.setStatus({ code: SpanStatusCode.ERROR })
+        handlerSpan.setStatus({ code: SpanStatusCode.ERROR, message: error.message })
         handlerSpan.end()
         throw error
       }
