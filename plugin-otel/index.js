@@ -26,6 +26,12 @@ async function otelPlugin (fastify, opts) {
     })
   }
 
+  fastify.decorateRequest('otelSpan', null)
+  fastify.decorateRequest('otelContext', null)
+  fastify.decorateRequest('otelHandlerSpan', null)
+  fastify.decorateRequest('otelServerError', null)
+  fastify.decorateRequest('otelInSerializationPhase', false)
+
   function shouldIgnoreRoute (url) {
     const urlWithoutQuery = url.split('?')[0]
     return ignoreRoutes.some(pattern => {
@@ -70,9 +76,9 @@ async function otelPlugin (fastify, opts) {
     return attributes
   }
 
-  function createHookSpan (hookName, request) {
+  function startHookSpan (hookName, request) {
     if (!hookSpans || !request.otelContext) {
-      return null
+      return
     }
 
     const span = tracer.startSpan(
@@ -83,7 +89,8 @@ async function otelPlugin (fastify, opts) {
       request.otelContext
     )
 
-    return span
+    const spanKey = `otelHookSpan_${hookName}`
+    request[spanKey] = span
   }
 
   function endHookSpan (request, hookName) {
@@ -91,13 +98,6 @@ async function otelPlugin (fastify, opts) {
     if (request[spanKey]) {
       request[spanKey].end()
       delete request[spanKey]
-    }
-  }
-
-  function createAndEndHookSpan (hookName, request) {
-    const span = createHookSpan(hookName, request)
-    if (span) {
-      span.end()
     }
   }
 
@@ -135,7 +135,7 @@ async function otelPlugin (fastify, opts) {
     request.otelSpan = span
     request.otelContext = otel.trace.setSpan(context, span)
 
-    createAndEndHookSpan('onRequest', request)
+    startHookSpan('onRequest', request)
   })
 
   fastify.addHook('preParsing', async (request, reply, payload) => {
@@ -143,7 +143,8 @@ async function otelPlugin (fastify, opts) {
       return payload
     }
 
-    createAndEndHookSpan('preParsing', request)
+    endHookSpan(request, 'onRequest')
+    startHookSpan('preParsing', request)
 
     return payload
   })
@@ -153,7 +154,8 @@ async function otelPlugin (fastify, opts) {
       return
     }
 
-    createAndEndHookSpan('preValidation', request)
+    endHookSpan(request, 'preParsing')
+    startHookSpan('preValidation', request)
   })
 
   fastify.addHook('preHandler', async (request, reply) => {
@@ -161,7 +163,8 @@ async function otelPlugin (fastify, opts) {
       return
     }
 
-    createAndEndHookSpan('preHandler', request)
+    endHookSpan(request, 'preValidation')
+    startHookSpan('preHandler', request)
 
     const handlerSpan = tracer.startSpan(
       'fastify.handler',
@@ -179,7 +182,8 @@ async function otelPlugin (fastify, opts) {
       return payload
     }
 
-    createAndEndHookSpan('preSerialization', request)
+    endHookSpan(request, 'preHandler')
+    startHookSpan('preSerialization', request)
 
     request.otelInSerializationPhase = true
 
@@ -187,7 +191,8 @@ async function otelPlugin (fastify, opts) {
   })
 
   fastify.addHook('onSend', async (request, reply, payload) => {
-    createAndEndHookSpan('onSend', request)
+    endHookSpan(request, 'preSerialization')
+    startHookSpan('onSend', request)
 
     if (request.otelHandlerSpan) {
       const handlerSpan = request.otelHandlerSpan
@@ -213,7 +218,10 @@ async function otelPlugin (fastify, opts) {
   })
 
   fastify.addHook('onError', async (request, reply, error) => {
-    createAndEndHookSpan('onError', request)
+    endHookSpan(request, 'preHandler')
+    endHookSpan(request, 'preSerialization')
+    endHookSpan(request, 'onSend')
+    startHookSpan('onError', request)
 
     if (request.otelSpan) {
       request.otelServerError = error
@@ -229,6 +237,9 @@ async function otelPlugin (fastify, opts) {
     if (!request.otelSpan) {
       return
     }
+
+    endHookSpan(request, 'onSend')
+    endHookSpan(request, 'onError')
 
     const span = request.otelSpan
 
