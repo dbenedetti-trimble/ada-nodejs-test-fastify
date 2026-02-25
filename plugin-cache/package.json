@@ -1,0 +1,31 @@
+{
+  "name": "@fastify/response-cache",
+  "version": "1.0.0",
+  "description": "Fastify plugin for HTTP response caching with in-memory LRU storage",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "test": "node --test test/**/*.test.js"
+  },
+  "keywords": [
+    "fastify",
+    "plugin",
+    "cache",
+    "response-cache",
+    "lru",
+    "etag",
+    "http-cache"
+  ],
+  "author": "Fastify Contributors",
+  "license": "MIT",
+  "peerDependencies": {
+    "fastify": "^5.x"
+  },
+  "devDependencies": {
+    "fastify-plugin": "^5.0.0"
+  },
+  "dependencies": {},
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
