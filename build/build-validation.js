@@ -28,6 +28,7 @@ const defaultInitOptions = {
   forceCloseConnections: undefined, // keep-alive connections
   maxRequestsPerSocket: 0, // no limit
   requestTimeout: 0, // no limit
+  routeTimeout: 0, // no limit for route timeout
   bodyLimit: 1024 * 1024, // 1 MiB
   caseSensitive: true,
   allowUnsafeRegex: false,
@@ -72,6 +73,7 @@ const schema = {
     },
     maxRequestsPerSocket: { type: 'integer', default: defaultInitOptions.maxRequestsPerSocket, nullable: true },
     requestTimeout: { type: 'integer', default: defaultInitOptions.requestTimeout },
+    routeTimeout: { type: 'integer', default: defaultInitOptions.routeTimeout },
     bodyLimit: { type: 'integer', default: defaultInitOptions.bodyLimit },
     caseSensitive: { type: 'boolean', default: defaultInitOptions.caseSensitive },
     allowUnsafeRegex: { type: 'boolean', default: defaultInitOptions.allowUnsafeRegex },
