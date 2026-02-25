@@ -1,0 +1,19 @@
+{
+  "name": "fastify-otel",
+  "version": "1.0.0",
+  "description": "Native OpenTelemetry instrumentation plugin for Fastify",
+  "main": "index.js",
+  "types": "types/index.d.ts",
+  "license": "MIT",
+  "peerDependencies": {
+    "@opentelemetry/api": ">=1.4.0"
+  },
+  "peerDependenciesMeta": {
+    "@opentelemetry/api": {
+      "optional": true
+    }
+  },
+  "dependencies": {
+    "fastify-plugin": "^5.0.0"
+  }
+}
