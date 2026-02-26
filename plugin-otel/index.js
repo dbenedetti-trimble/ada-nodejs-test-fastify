@@ -11,7 +11,7 @@ const kOtelHandlerSpan = Symbol('fastify.otel.handlerSpan')
 const kHookSpans = Symbol('fastify.otel.hookSpans')
 
 const HOOK_SPAN_PHASES = new Set([
-  'onRequest', 'preParsing', 'preValidation', 'preHandler',
+  'preParsing', 'preValidation', 'preHandler',
   'preSerialization', 'onSend', 'onError'
 ])
 const PAYLOAD_PHASES = new Set(['preParsing', 'onSend', 'preSerialization', 'onError'])
@@ -55,7 +55,9 @@ async function otelPlugin (fastify, opts) {
     if (!spanCtx) return done()
     const handlerSpan = tracer.startSpan('fastify.handler', {}, spanCtx)
     request[kOtelHandlerSpan] = handlerSpan
-    done()
+    // Activate OTel context so child spans created in the handler are
+    // correctly parented to the server span via AsyncLocalStorage propagation.
+    context.with(spanCtx, done)
   })
 
   fastify.addHook('onSend', function onSendOtelHandler (request, reply, payload, done) {
@@ -100,15 +102,23 @@ function setupHookSpans (fastify, tracer) {
   // added to the Fastify instance before `fastify.register(otelPlugin)` is
   // called will not be wrapped with hook spans. Register this plugin before
   // adding application hooks to ensure full hook-span coverage.
-  const hookCount = Object.create(null)
   const origAdd = fastify.addHook.bind(fastify)
+  // Tracks the flag object for the most-recently registered span-end wrapper
+  // per phase. Each time a new hook is added, the previous flag is marked as
+  // non-last so only the final wrapper ends the phase span.
+  const phaseLastFlag = Object.create(null)
 
   fastify.addHook = function patchedAddHook (name, fn) {
     if (HOOK_SPAN_PHASES.has(name)) {
-      if (!hookCount[name]) origAdd(name, makeSpanStart(name, tracer))
-      hookCount[name] = (hookCount[name] || 0) + 1
+      if (!phaseLastFlag[name]) {
+        origAdd(name, makeSpanStart(name, tracer))
+      } else {
+        phaseLastFlag[name].isLast = false
+      }
+      const flag = { isLast: true }
+      phaseLastFlag[name] = flag
       origAdd(name, fn)
-      origAdd(name, makeSpanEnd(name, hookCount[name], hookCount))
+      origAdd(name, makeSpanEnd(name, flag))
       return fastify
     }
     return origAdd(name, fn)
@@ -129,15 +139,15 @@ function makeSpanStart (phase, tracer) {
   return function hookSpanStart (req, reply, done) { createHookSpan(req, phase, tracer); done() }
 }
 
-function makeSpanEnd (phase, myIndex, hookCount) {
+function makeSpanEnd (phase, flag) {
   if (PAYLOAD_PHASES.has(phase)) {
     return function hookSpanEnd (req, reply, payload, done) {
-      if (myIndex === hookCount[phase]) req[kHookSpans]?.[phase]?.end()
+      if (flag.isLast) req[kHookSpans]?.[phase]?.end()
       done()
     }
   }
   return function hookSpanEnd (req, reply, done) {
-    if (myIndex === hookCount[phase]) req[kHookSpans]?.[phase]?.end()
+    if (flag.isLast) req[kHookSpans]?.[phase]?.end()
     done()
   }
 }
