@@ -211,7 +211,7 @@ test('request Cache-Control: no-store bypasses cache and does not store', async 
   assert.equal(calls, 2)
 
   const r3 = await app.inject({ method: 'GET', url: '/nst' })
-  assert.equal(r3.headers['x-cache'], 'HIT', 'first MISS stored, no-store request bypassed but earlier entry still valid')
+  assert.equal(r3.headers['x-cache'], 'HIT', 'first MISS stored; no-store request bypassed, prior entry valid')
   await app.close()
 })
 

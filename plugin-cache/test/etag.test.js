@@ -52,7 +52,7 @@ test('matchesETag returns false when If-None-Match does not match stored ETag', 
   t.plan(2)
   const etag = generateETag('response body')
   t.assert.strictEqual(matchesETag('W/"wrongetag123456"', etag), false, 'non-matching ETag must return false')
-  t.assert.strictEqual(matchesETag('W/"0000000000000000"', etag), false, 'arbitrary non-matching ETag must return false')
+  t.assert.strictEqual(matchesETag('W/"0000000000000000"', etag), false, 'non-matching ETag returns false')
 })
 
 // @covers_ACFR_9_3
