@@ -1,0 +1,13 @@
+{
+  "name": "fastify-response-cache",
+  "version": "1.0.0",
+  "description": "Zero-dependency in-memory response cache plugin for Fastify 5",
+  "main": "index.js",
+  "types": "types/index.d.ts",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "keywords": ["fastify", "cache", "plugin", "response"],
+  "license": "MIT",
+  "dependencies": {}
+}
