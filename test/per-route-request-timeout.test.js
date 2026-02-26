@@ -226,6 +226,46 @@ test('timeout after reply.send() is a no-op - no double send', async (t) => {
   t.assert.strictEqual(res.statusCode, 200)
 })
 
+// @covers_ACFR_7_1 @covers_ACFR_7_2 @covers_ACFR_7_4 @covers_ACDP_4_1 @covers_ACDP_4_2 @unit_test
+test('requestTimeout exposed in request.routeOptions', async (t) => {
+  t.plan(3)
+  const fastify = Fastify({ routeTimeout: 30000 })
+  t.after(() => fastify.close())
+
+  fastify.get('/with-timeout', { requestTimeout: 5000 }, async (request) => {
+    t.assert.strictEqual(request.routeOptions.requestTimeout, 5000)
+    return { success: true }
+  })
+
+  fastify.get('/default-timeout', async (request) => {
+    t.assert.strictEqual(request.routeOptions.requestTimeout, 30000)
+    return { success: true }
+  })
+
+  fastify.get('/no-timeout', { requestTimeout: 0 }, async (request) => {
+    t.assert.strictEqual(request.routeOptions.requestTimeout, 0)
+    return { success: true }
+  })
+
+  await fastify.inject({ method: 'GET', url: '/with-timeout' })
+  await fastify.inject({ method: 'GET', url: '/default-timeout' })
+  await fastify.inject({ method: 'GET', url: '/no-timeout' })
+})
+
+// @covers_ACFR_7_3 @covers_ACDP_4_2 @unit_test
+test('requestTimeout in request.routeOptions is undefined when no timeout configured', async (t) => {
+  t.plan(1)
+  const fastify = Fastify()
+  t.after(() => fastify.close())
+
+  fastify.get('/no-timeout', async (request) => {
+    t.assert.strictEqual(request.routeOptions.requestTimeout, undefined)
+    return { success: true }
+  })
+
+  await fastify.inject({ method: 'GET', url: '/no-timeout' })
+})
+
 // @covers_ACFR_4_4 @integration_test
 test('request.signal aborts on client disconnect', async (t) => {
   t.plan(1)

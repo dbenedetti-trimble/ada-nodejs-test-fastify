@@ -87,6 +87,8 @@ const getHandler: RouteHandler = function (request, _reply) {
   expectType<string>(request.id)
   expectType<FastifyBaseLogger>(request.log)
   expectType<RawRequestDefaultExpression['socket']>(request.socket)
+  expectType<AbortSignal>(request.signal)
+  expectType<number | undefined>(request.routeOptions.requestTimeout)
   expectType<Error & { validation: any; validationContext: string } | undefined>(request.validationError)
   expectType<FastifyInstance>(request.server)
   expectAssignable<(httpPart: HTTPRequestPart) => ExpectedGetValidationFunction>(request.getValidationFunction)
