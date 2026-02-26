@@ -8,6 +8,13 @@ const { buildRequestAttributes, buildResponseAttributes } = require('./lib/span-
 const kOtelSpan = Symbol('fastify.otel.span')
 const kOtelContext = Symbol('fastify.otel.context')
 const kOtelHandlerSpan = Symbol('fastify.otel.handlerSpan')
+const kHookSpans = Symbol('fastify.otel.hookSpans')
+
+const HOOK_SPAN_PHASES = new Set([
+  'onRequest', 'preParsing', 'preValidation', 'preHandler',
+  'preSerialization', 'onSend', 'onError'
+])
+const PAYLOAD_PHASES = new Set(['preParsing', 'onSend', 'preSerialization', 'onError'])
 
 async function otelPlugin (fastify, opts) {
   const otel = loadOtelApi()
@@ -59,10 +66,13 @@ async function otelPlugin (fastify, opts) {
   })
 
   fastify.addHook('onError', function onErrorOtelHandler (request, reply, error, done) {
-    const span = request[kOtelHandlerSpan]
-    if (span) {
-      span.recordException(error)
-      span.setStatus({ code: SpanStatusCode.ERROR, message: error.message })
+    const handlerSpan = request[kOtelHandlerSpan]
+    if (handlerSpan) {
+      handlerSpan.recordException(error)
+      handlerSpan.setStatus({ code: SpanStatusCode.ERROR, message: error.message })
+    } else {
+      const serverSpan = request[kOtelSpan]
+      if (serverSpan) serverSpan.recordException(error)
     }
     done()
   })
@@ -77,6 +87,53 @@ async function otelPlugin (fastify, opts) {
     span.end()
     done()
   })
+
+  if (opts.hookSpans !== false) {
+    setupHookSpans(fastify, tracer)
+  }
+}
+
+function setupHookSpans (fastify, tracer) {
+  const hookCount = Object.create(null)
+  const origAdd = fastify.addHook.bind(fastify)
+
+  fastify.addHook = function patchedAddHook (name, fn) {
+    if (HOOK_SPAN_PHASES.has(name)) {
+      if (!hookCount[name]) origAdd(name, makeSpanStart(name, tracer))
+      hookCount[name] = (hookCount[name] || 0) + 1
+      origAdd(name, fn)
+      origAdd(name, makeSpanEnd(name, hookCount[name], hookCount))
+      return fastify
+    }
+    return origAdd(name, fn)
+  }
+}
+
+function createHookSpan (req, phase, tracer) {
+  const ctx = req[kOtelContext]
+  if (!ctx) return
+  if (!req[kHookSpans]) req[kHookSpans] = Object.create(null)
+  req[kHookSpans][phase] = tracer.startSpan('fastify.hook.' + phase, {}, ctx)
+}
+
+function makeSpanStart (phase, tracer) {
+  if (PAYLOAD_PHASES.has(phase)) {
+    return function hookSpanStart (req, reply, payload, done) { createHookSpan(req, phase, tracer); done() }
+  }
+  return function hookSpanStart (req, reply, done) { createHookSpan(req, phase, tracer); done() }
+}
+
+function makeSpanEnd (phase, myIndex, hookCount) {
+  if (PAYLOAD_PHASES.has(phase)) {
+    return function hookSpanEnd (req, reply, payload, done) {
+      if (myIndex === hookCount[phase]) req[kHookSpans]?.[phase]?.end()
+      done()
+    }
+  }
+  return function hookSpanEnd (req, reply, done) {
+    if (myIndex === hookCount[phase]) req[kHookSpans]?.[phase]?.end()
+    done()
+  }
 }
 
 function defaultSpanName (request) {

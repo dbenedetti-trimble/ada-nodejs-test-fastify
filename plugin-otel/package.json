@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "description": "First-party OpenTelemetry instrumentation plugin for Fastify",
   "main": "index.js",
+  "types": "types/index.d.ts",
   "scripts": {
     "test": "node --test test/*.test.js"
   },
