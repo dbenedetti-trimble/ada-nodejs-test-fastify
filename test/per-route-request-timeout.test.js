@@ -266,6 +266,88 @@ test('requestTimeout in request.routeOptions is undefined when no timeout config
   await fastify.inject({ method: 'GET', url: '/no-timeout' })
 })
 
+// @covers_ACTC_1_1 @covers_ACNFR_3_1 @unit_test
+test('route without requestTimeout has no timeout', async (t) => {
+  t.plan(1)
+  const fastify = Fastify()
+  t.after(() => fastify.close())
+
+  fastify.get('/', async () => {
+    await sleep(300)
+    return { success: true }
+  })
+
+  const res = await fastify.inject({ method: 'GET', url: '/' })
+  t.assert.strictEqual(res.statusCode, 200)
+})
+
+// @covers_ACTC_1_1 @unit_test
+test('global routeTimeout applies to routes without requestTimeout', async (t) => {
+  t.plan(2)
+  const fastify = Fastify({ routeTimeout: 200 })
+  t.after(() => fastify.close())
+
+  fastify.get('/', async () => {
+    await sleep(500)
+    return { success: true }
+  })
+
+  const res = await fastify.inject({ method: 'GET', url: '/' })
+  t.assert.strictEqual(res.statusCode, 408)
+  t.assert.strictEqual(res.json().error, 'Request Timeout')
+})
+
+// @covers_ACTC_1_1 @unit_test
+test('per-route requestTimeout overrides global routeTimeout', async (t) => {
+  t.plan(1)
+  const fastify = Fastify({ routeTimeout: 200 })
+  t.after(() => fastify.close())
+
+  fastify.get('/', { requestTimeout: 5000 }, async () => {
+    await sleep(300)
+    return { success: true }
+  })
+
+  const res = await fastify.inject({ method: 'GET', url: '/' })
+  t.assert.strictEqual(res.statusCode, 200)
+})
+
+// @covers_ACTC_1_1 @unit_test
+test('requestTimeout: 0 disables timeout even with global routeTimeout', async (t) => {
+  t.plan(1)
+  const fastify = Fastify({ routeTimeout: 200 })
+  t.after(() => fastify.close())
+
+  fastify.get('/', { requestTimeout: 0 }, async () => {
+    await sleep(300)
+    return { success: true }
+  })
+
+  const res = await fastify.inject({ method: 'GET', url: '/' })
+  t.assert.strictEqual(res.statusCode, 200)
+})
+
+// @covers_ACTC_1_3 @unit_test
+test('invalid requestTimeout throws validation error', (t) => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  t.assert.throws(
+    () => fastify.get('/', { requestTimeout: -1 }, async () => {}),
+    { code: 'FST_ERR_ROUTE_REQUEST_TIMEOUT_OPTION_NOT_INT' }
+  )
+
+  t.assert.throws(
+    () => fastify.get('/', { requestTimeout: 3.5 }, async () => {}),
+    { code: 'FST_ERR_ROUTE_REQUEST_TIMEOUT_OPTION_NOT_INT' }
+  )
+
+  t.assert.throws(
+    () => fastify.get('/', { requestTimeout: 'fast' }, async () => {}),
+    { code: 'FST_ERR_ROUTE_REQUEST_TIMEOUT_OPTION_NOT_INT' }
+  )
+})
+
 // @covers_ACFR_4_4 @integration_test
 test('request.signal aborts on client disconnect', async (t) => {
   t.plan(1)
