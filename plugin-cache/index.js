@@ -17,7 +17,7 @@ async function cachePlugin (fastify, opts) {
 
   function buildCacheKey (method, url, varyHeaders, request) {
     const varyPart = varyHeaders
-      .map(h => h + ':' + (request.headers[h] || ''))
+      .map(h => h + ':' + (request.headers[h.toLowerCase()] || ''))
       .join('|')
     return method + '|' + url + '|' + varyPart
   }
@@ -62,7 +62,10 @@ async function cachePlugin (fastify, opts) {
     if (!methods.has(method)) return done()
 
     const reqCC = parseRequestCC(request.headers['cache-control'])
-    if (reqCC.noStore) return done()
+    if (reqCC.noStore) {
+      reply.header('x-cache', 'MISS')
+      return done()
+    }
 
     const routeVary = cacheConfig !== true && Array.isArray(cacheConfig.vary)
       ? cacheConfig.vary.map(h => h.toLowerCase())
@@ -89,7 +92,7 @@ async function cachePlugin (fastify, opts) {
 
     if (matchesETag(request.headers['if-none-match'], entry.etag)) {
       reply.code(304).send('')
-      return reply
+      return done()
     }
 
     reply.code(entry.statusCode)
@@ -97,7 +100,7 @@ async function cachePlugin (fastify, opts) {
       reply.header('content-type', entry.headers['content-type'])
     }
     reply.send(entry.body)
-    return reply
+    return done()
   })
 
   fastify.addHook('onSend', function (request, reply, payload, done) {
