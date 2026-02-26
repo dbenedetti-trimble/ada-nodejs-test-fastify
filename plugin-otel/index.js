@@ -45,7 +45,9 @@ async function otelPlugin (fastify, opts) {
     request[kOtelSpan] = span
     request[kOtelContext] = spanContext
     if (opts.exposeApi !== false) request.otelSpan = span
-    done()
+    // Activate the OTel context for the entire request lifecycle so that child
+    // spans created in hooks and handlers are correctly parented to this span.
+    context.with(spanContext, done)
   })
 
   fastify.addHook('preHandler', function preHandlerOtelCtx (request, reply, done) {
@@ -53,7 +55,7 @@ async function otelPlugin (fastify, opts) {
     if (!spanCtx) return done()
     const handlerSpan = tracer.startSpan('fastify.handler', {}, spanCtx)
     request[kOtelHandlerSpan] = handlerSpan
-    context.with(spanCtx, done)
+    done()
   })
 
   fastify.addHook('onSend', function onSendOtelHandler (request, reply, payload, done) {
@@ -94,6 +96,10 @@ async function otelPlugin (fastify, opts) {
 }
 
 function setupHookSpans (fastify, tracer) {
+  // NOTE: This patch only instruments hooks registered AFTER the plugin. Hooks
+  // added to the Fastify instance before `fastify.register(otelPlugin)` is
+  // called will not be wrapped with hook spans. Register this plugin before
+  // adding application hooks to ensure full hook-span coverage.
   const hookCount = Object.create(null)
   const origAdd = fastify.addHook.bind(fastify)
 

@@ -30,9 +30,10 @@ function buildRequestAttributes (request) {
 function buildResponseAttributes (request, reply) {
   const route = request.routeOptions?.config?.url ?? request.routeOptions?.url
   const attrs = {
-    'http.response.status_code': reply.statusCode,
-    'http.route': route ?? ''
+    'http.response.status_code': reply.statusCode
   }
+
+  if (route) attrs['http.route'] = route
 
   const cl = reply.getHeader('content-length')
   if (cl !== undefined) attrs['http.response.header.content-length'] = Number(cl)
