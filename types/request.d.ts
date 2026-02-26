@@ -33,6 +33,7 @@ export interface RequestRouteOptions<ContextConfig = ContextConfigDefault, Schem
   schema?: SchemaCompiler; // it is empty for 404 requests
   handler: RouteHandlerMethod;
   version?: string;
+  requestTimeout?: number;
 }
 
 /**
@@ -82,6 +83,7 @@ export interface FastifyRequest<RouteGeneric extends RouteGenericInterface = Rou
   readonly routeOptions: Readonly<RequestRouteOptions<ContextConfig, SchemaCompiler>>
   readonly is404: boolean;
   readonly socket: RawRequest['socket'];
+  readonly signal: AbortSignal;
 
   getValidationFunction(httpPart: HTTPRequestPart): ValidationFunction
   getValidationFunction(schema: { [key: string]: any }): ValidationFunction
