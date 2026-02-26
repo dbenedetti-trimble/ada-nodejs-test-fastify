@@ -11,7 +11,7 @@ const kOtelHandlerSpan = Symbol('fastify.otel.handlerSpan')
 const kHookSpans = Symbol('fastify.otel.hookSpans')
 
 const HOOK_SPAN_PHASES = new Set([
-  'preParsing', 'preValidation', 'preHandler',
+  'onRequest', 'preParsing', 'preValidation', 'preHandler',
   'preSerialization', 'onSend', 'onError'
 ])
 const PAYLOAD_PHASES = new Set(['preParsing', 'onSend', 'preSerialization', 'onError'])
@@ -53,11 +53,17 @@ async function otelPlugin (fastify, opts) {
   fastify.addHook('preHandler', function preHandlerOtelCtx (request, reply, done) {
     const spanCtx = request[kOtelContext]
     if (!spanCtx) return done()
-    const handlerSpan = tracer.startSpan('fastify.handler', {}, spanCtx)
-    request[kOtelHandlerSpan] = handlerSpan
-    // Activate OTel context so child spans created in the handler are
-    // correctly parented to the server span via AsyncLocalStorage propagation.
-    context.with(spanCtx, done)
+    // Run inside context.with() so that:
+    // 1. The server span is the active span when startSpan is called, making
+    //    the handler span a child of the server span.
+    // 2. done() is called from within the active context, propagating the
+    //    OTel context to the handler via AsyncLocalStorage so child spans
+    //    created inside the handler are correctly parented to the server span.
+    context.with(spanCtx, () => {
+      const handlerSpan = tracer.startSpan('fastify.handler')
+      request[kOtelHandlerSpan] = handlerSpan
+      done()
+    })
   })
 
   fastify.addHook('onSend', function onSendOtelHandler (request, reply, payload, done) {

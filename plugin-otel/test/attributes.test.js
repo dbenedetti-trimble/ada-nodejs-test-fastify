@@ -70,5 +70,5 @@ test('buildResponseAttributes - http.route fallback and 404 handling', t => {
   t.assert.strictEqual(fallback['http.route'], '/items/:id')
 
   const notFound = buildResponseAttributes(makeRequest({ routeOptions: { url: undefined } }), noReply)
-  t.assert.strictEqual(notFound['http.route'], '')
+  t.assert.strictEqual(notFound['http.route'], undefined)
 })
