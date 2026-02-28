@@ -23,13 +23,18 @@ test('plugin registers without error when OTel SDK is configured', async (t) => 
 // VAL-02: Plugin is no-op when @opentelemetry/api is not installed
 test('plugin is no-op when otel api is missing', async (t) => {
   t.plan(2)
-  // TODO(features): use proxyquire to simulate missing @opentelemetry/api
-  // For now stub: verify plugin registers without error
+  const proxyquire = require('proxyquire').noCallThru()
+  const noOpPlugin = proxyquire('../index', {
+    './lib/otel-api': { loadOtelApi: () => false }
+  })
+
   const fastify = Fastify()
   t.after(() => fastify.close())
+  await fastify.register(noOpPlugin)
+  await fastify.ready()
 
-  t.assert.ok(true, 'placeholder — no-op when missing module')
-  t.assert.ok(true, 'placeholder — no hooks registered')
+  t.assert.strictEqual(fastify.hasDecorator('otel'), false, 'fastify.otel is not registered')
+  t.assert.strictEqual(fastify.hasRequestDecorator('otelSpan'), false, 'request.otelSpan is not registered')
 })
 
 // VAL-03: Plugin registers when OTel API installed but no SDK configured

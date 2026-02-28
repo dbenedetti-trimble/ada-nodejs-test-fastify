@@ -8,9 +8,10 @@
  * @returns {import('@opentelemetry/api').Context}
  */
 function extractContext (otel, headers) {
-  // TODO(features): call otel.propagation.extract(otel.ROOT_CONTEXT, headers, getter)
-  //   where getter implements TextMapGetter via { get(carrier, key), keys(carrier) }
-  return otel.ROOT_CONTEXT
+  return otel.propagation.extract(otel.ROOT_CONTEXT, headers, {
+    get (carrier, key) { return carrier[key] },
+    keys (carrier) { return Object.keys(carrier) }
+  })
 }
 
 module.exports = { extractContext }
