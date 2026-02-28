@@ -1,7 +1,7 @@
 import { FastifyError } from '@fastify/error'
 import * as http from 'node:http'
 import { expectAssignable, expectError, expectType } from 'tsd'
-import fastify, { FastifyInstance, FastifyReply, FastifyRequest, RouteHandlerMethod } from '../../fastify'
+import fastify, { FastifyInstance, FastifyReply, FastifyRequest, RouteHandlerMethod, RouteShorthandOptions } from '../../fastify'
 import { RequestPayload } from '../../types/hooks'
 import { FindMyWayFindResult } from '../../types/instance'
 import { HTTPMethods, RawServerDefault } from '../../types/utils'
@@ -551,3 +551,6 @@ expectType<FastifyInstance>(fastify().route({
     expectAssignable<string | Array<string>>(req.routeOptions.method)
   }
 }))
+
+expectAssignable<RouteShorthandOptions>({ requestTimeout: 5000 })
+expectAssignable<RouteShorthandOptions>({ requestTimeout: 0 })

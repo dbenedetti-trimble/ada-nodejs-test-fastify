@@ -99,6 +99,8 @@ const getHandler: RouteHandler = function (request, _reply) {
   expectType<void>(request.setDecorator('foo', 'hello'))
   expectType<void>(request.setDecorator<string>('foo', 'hello'))
   expectError(request.setDecorator<string>('foo', true))
+  expectType<AbortSignal>(request.signal)
+  expectType<number | undefined>(request.routeOptions.requestTimeout)
 }
 
 const getHandlerWithCustomLogger: RouteHandlerMethod<

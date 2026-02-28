@@ -317,6 +317,7 @@ type InitialConfig = Readonly<{
   connectionTimeout?: number,
   keepAliveTimeout?: number,
   bodyLimit?: number,
+  routeTimeout?: number,
   caseSensitive?: boolean,
   allowUnsafeRegex?: boolean,
   forceCloseConnections?: boolean,
