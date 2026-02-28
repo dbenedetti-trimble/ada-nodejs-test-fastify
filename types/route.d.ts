@@ -60,6 +60,7 @@ export interface RouteShorthandOptions<
   schema?: SchemaCompiler, // originally FastifySchema
   attachValidation?: boolean;
   exposeHeadRoute?: boolean;
+  requestTimeout?: number;
 
   validatorCompiler?: FastifySchemaCompiler<NoInfer<SchemaCompiler>>;
   serializerCompiler?: FastifySerializerCompiler<NoInfer<SchemaCompiler>>;
