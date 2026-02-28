@@ -4,6 +4,7 @@ const neostandard = require('neostandard')
 module.exports = [
   ...neostandard({
     ignores: [
+      '.ada/**',
       'lib/config-validator.js',
       'lib/error-serializer.js',
       'lib/route.ts',
