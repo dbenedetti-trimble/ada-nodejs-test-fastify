@@ -17,14 +17,25 @@
  * @returns {CacheControlDirectives}
  */
 function parse (header) {
-  // TODO: implement — split on commas, trim each token, extract directives and values
-  return {
-    noStore: false,
-    noCache: false,
-    isPrivate: false,
-    maxAge: null,
-    sMaxAge: null
+  const result = { noStore: false, noCache: false, isPrivate: false, maxAge: null, sMaxAge: null }
+  if (!header) return result
+  for (const token of header.split(',')) {
+    const t = token.trim().toLowerCase()
+    if (t === 'no-store') {
+      result.noStore = true
+    } else if (t === 'no-cache') {
+      result.noCache = true
+    } else if (t === 'private') {
+      result.isPrivate = true
+    } else if (t.startsWith('max-age=')) {
+      const n = parseInt(t.slice(8), 10)
+      if (!isNaN(n)) result.maxAge = n
+    } else if (t.startsWith('s-maxage=')) {
+      const n = parseInt(t.slice(9), 10)
+      if (!isNaN(n)) result.sMaxAge = n
+    }
   }
+  return result
 }
 
 module.exports = { parse }

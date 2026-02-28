@@ -9,8 +9,9 @@ const { createHash } = require('node:crypto')
  * @returns {string}
  */
 function generateETag (body) {
-  // TODO: implement — SHA-256 hash body, take first 16 hex chars, return W/"..." format
-  return 'W/"0000000000000000"'
+  const buf = Buffer.isBuffer(body) ? body : Buffer.from(body)
+  const hash = createHash('sha256').update(buf).digest('hex').slice(0, 16)
+  return `W/"${hash}"`
 }
 
 module.exports = { generateETag }

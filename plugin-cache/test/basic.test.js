@@ -52,10 +52,12 @@ test('basic miss then hit with handler call tracking', async t => {
 
 test('cache decorator is visible on parent scope (fastify-plugin escape)', async t => {
   const fastify = Fastify()
+  let parentApp
   await fastify.register(async function child (app) {
+    parentApp = app
     await app.register(cachePlugin)
   })
   await fastify.ready()
-  t.assert.ok(fastify.cache, 'cache decorator visible on parent instance')
+  t.assert.ok(parentApp.cache, 'cache decorator visible on parent instance')
   await fastify.close()
 })

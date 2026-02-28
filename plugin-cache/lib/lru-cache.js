@@ -16,7 +16,11 @@ class LRUCache {
    * @returns {object|undefined}
    */
   get (key) {
-    // TODO: implement — check map, move to MRU, return entry or undefined
+    if (!this.#map.has(key)) return undefined
+    const value = this.#map.get(key)
+    this.#map.delete(key)
+    this.#map.set(key, value)
+    return value
   }
 
   /**
@@ -25,7 +29,12 @@ class LRUCache {
    * @param {object} value - { body, statusCode, headers, etag, expiry }
    */
   set (key, value) {
-    // TODO: implement — evict LRU if needed, insert at MRU position
+    if (this.#map.has(key)) {
+      this.#map.delete(key)
+    } else if (this.#map.size >= this.#maxItems) {
+      this.#map.delete(this.#map.keys().next().value)
+    }
+    this.#map.set(key, value)
   }
 
   /**
@@ -43,6 +52,13 @@ class LRUCache {
    */
   keys () {
     return this.#map.keys()
+  }
+
+  /**
+   * Remove all entries from the cache.
+   */
+  clear () {
+    this.#map.clear()
   }
 
   /** @type {number} */

@@ -53,6 +53,8 @@ test('clear() removes all entries and resets stats', async t => {
   const fastify = await buildFastify()
   for (const path of ['/a', '/b']) {
     fastify.get(path, { config: { cache: true } }, async () => ({ path }))
+  }
+  for (const path of ['/a', '/b']) {
     await fastify.inject({ method: 'GET', url: path })
     await fastify.inject({ method: 'GET', url: path })
   }

@@ -34,11 +34,11 @@ test('LRU evicts least recently used', async t => {
   await fastify.inject({ method: 'GET', url: '/b' })
   await fastify.inject({ method: 'GET', url: '/c' })
 
-  const aResult = await fastify.inject({ method: 'GET', url: '/a' })
-  t.assert.strictEqual(aResult.headers['x-cache'], 'MISS')
-
   const bResult = await fastify.inject({ method: 'GET', url: '/b' })
   t.assert.strictEqual(bResult.headers['x-cache'], 'HIT')
+
+  const aResult = await fastify.inject({ method: 'GET', url: '/a' })
+  t.assert.strictEqual(aResult.headers['x-cache'], 'MISS')
   await fastify.close()
 })
 
