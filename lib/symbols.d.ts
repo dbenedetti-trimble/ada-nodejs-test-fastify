@@ -1,0 +1,17 @@
+export declare const kRoutePrefix: unique symbol;
+export declare const kSupportedHTTPMethods: unique symbol;
+export declare const kLogLevel: unique symbol;
+export declare const kLogSerializers: unique symbol;
+export declare const kHooks: unique symbol;
+export declare const kSchemaController: unique symbol;
+export declare const kOptions: unique symbol;
+export declare const kReplySerializerDefault: unique symbol;
+export declare const kReplyIsError: unique symbol;
+export declare const kRequestPayloadStream: unique symbol;
+export declare const kDisableRequestLogging: unique symbol;
+export declare const kSchemaErrorFormatter: unique symbol;
+export declare const kErrorHandler: unique symbol;
+export declare const kHasBeenDecorated: unique symbol;
+export declare const kRequestAcceptVersion: unique symbol;
+export declare const kRouteByFastify: unique symbol;
+export declare const kRouteContext: unique symbol;

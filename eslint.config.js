@@ -4,8 +4,12 @@ const neostandard = require('neostandard')
 module.exports = [
   ...neostandard({
     ignores: [
+      '.ada/**',
       'lib/config-validator.js',
       'lib/error-serializer.js',
+      'lib/route.ts',
+      'lib/route.js',
+      'lib/*.d.ts',
       'test/same-shape.test.js',
       'test/types/import.js'
     ],
