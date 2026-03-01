@@ -326,7 +326,7 @@ test('onReady throw loading error', t => {
     fastify.addHook('onReady', async function (done) {})
   } catch (e) {
     t.assert.strictEqual(e.code, 'FST_ERR_HOOK_INVALID_ASYNC_HANDLER')
-    t.assert.ok(e.message === 'Async function has too many arguments. Async hooks should not use the \'done\' argument.')
+    t.assert.ok(e.message === 'Async function for "onReady" hook has too many arguments. Async hooks should not use the \'done\' argument.')
   }
 })
 
