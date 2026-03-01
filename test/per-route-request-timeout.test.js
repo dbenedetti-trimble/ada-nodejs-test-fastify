@@ -225,3 +225,74 @@ test('fastify.initialConfig.routeTimeout is exposed', async t => {
   await fastify.ready()
   t.assert.strictEqual(fastify.initialConfig.routeTimeout, 30000)
 })
+
+test('request.routeOptions.requestTimeout returns 0 when explicitly disabled', async t => {
+  t.plan(1)
+  const fastify = Fastify({ routeTimeout: 30000 })
+  t.after(() => fastify.close())
+
+  fastify.get('/disabled', { requestTimeout: 0 }, async (req) => {
+    t.assert.strictEqual(req.routeOptions.requestTimeout, 0)
+    return {}
+  })
+
+  await fastify.inject({ method: 'GET', url: '/disabled' })
+})
+
+test('request.signal aborts on client disconnect', async t => {
+  t.plan(1)
+  const fastify = Fastify()
+  t.after(() => fastify.close())
+
+  let capturedSignal
+  let resolveAborted
+  const signalAbortedPromise = new Promise(resolve => { resolveAborted = resolve })
+
+  fastify.get('/disconnect', async (request) => {
+    capturedSignal = request.signal
+    request.signal.addEventListener('abort', resolveAborted, { once: true })
+    await sleep(5000)
+    return {}
+  })
+
+  await fastify.listen({ port: 0 })
+  const abortController = new AbortController()
+
+  fetch(
+    `http://localhost:${fastify.server.address().port}/disconnect`,
+    { signal: abortController.signal }
+  ).catch(() => {})
+
+  await sleep(100)
+  abortController.abort()
+
+  await signalAbortedPromise
+  t.assert.strictEqual(capturedSignal.aborted, true)
+})
+
+test('streaming response: timeout aborts signal but logs warning without sending 408', async t => {
+  t.plan(3)
+  const logs = []
+  const fastify = Fastify({
+    logger: { stream: { write (line) { logs.push(JSON.parse(line)) } } }
+  })
+  t.after(() => fastify.close())
+
+  let capturedSignal
+
+  fastify.get('/stream', { requestTimeout: 200 }, async (request, reply) => {
+    capturedSignal = request.signal
+    reply.hijack()
+    reply.raw.write('hello')
+    await sleep(500)
+    reply.raw.end()
+  })
+
+  await fastify.listen({ port: 0 })
+  const res = await fetch(`http://localhost:${fastify.server.address().port}/stream`)
+
+  t.assert.ok(capturedSignal.aborted, 'signal should be aborted after timeout')
+  t.assert.notStrictEqual(res.status, 408, 'should not send 408 for streaming response')
+  const hasWarning = logs.some(l => l.msg === 'response already sent, skipping 408')
+  t.assert.ok(hasWarning, 'should log warning that response was already sent')
+})
