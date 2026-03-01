@@ -1,3 +1,4 @@
+// This file is compiled to lib/route.js - DO NOT EDIT lib/route.js DIRECTLY
 'use strict'
 
 import FindMyWay = require('find-my-way')
@@ -132,7 +133,7 @@ function buildRouting (options: any): RoutingApi {
     findRoute
   }
 
-  function addConstraintStrategy (strategy: any): void {
+  function addConstraintStrategy (strategy: any): any {
     throwIfAlreadyStarted('Cannot add constraint strategy!')
     return router.addConstraintStrategy(strategy)
   }
