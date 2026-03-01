@@ -1,4 +1,4 @@
-import { FastifyPluginCallback, FastifyRequest, FastifyInstance } from 'fastify'
+import { FastifyPluginCallback, FastifyRequest } from 'fastify'
 import { Tracer, Span } from '@opentelemetry/api'
 
 export interface FastifyOtelOptions {

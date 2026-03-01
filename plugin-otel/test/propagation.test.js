@@ -1,7 +1,7 @@
 'use strict'
 
 const { test, describe, after } = require('node:test')
-const { SpanKind, context, trace } = require('@opentelemetry/api')
+const { SpanKind, context } = require('@opentelemetry/api')
 const { createTestSetup } = require('./helpers/setup')
 
 const { exporter, buildFastify, teardown } = createTestSetup()

@@ -78,7 +78,7 @@ describe('error recording on spans (OTEL-6)', () => {
     t.plan(1)
     const fastify = buildFastify()
     fastify.get('/async-err', async () => {
-      await new Promise((_, reject) => setTimeout(() => reject(new Error('async fail')), 5))
+      await new Promise((_resolve, reject) => setTimeout(() => reject(new Error('async fail')), 5))
     })
     await fastify.ready()
     await fastify.inject({ method: 'GET', url: '/async-err' })
