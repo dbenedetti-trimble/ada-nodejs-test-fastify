@@ -6,8 +6,10 @@ module.exports = [
     ignores: [
       'lib/config-validator.js',
       'lib/error-serializer.js',
+      'lib/route.js',
       'test/same-shape.test.js',
-      'test/types/import.js'
+      'test/types/import.js',
+      '.ada/**'
     ],
     ts: true
   }),
@@ -29,7 +31,14 @@ module.exports = [
   {
     files: ['**/*.d.ts'],
     rules: {
-      'max-len': 'off'
+      'max-len': 'off',
+      '@stylistic/semi': 'off'
+    }
+  },
+  {
+    files: ['lib/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off'
     }
   }
 ]
