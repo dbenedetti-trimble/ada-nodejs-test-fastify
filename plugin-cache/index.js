@@ -61,7 +61,7 @@ async function cachePlugin (fastify, opts) {
       return
     }
 
-    if (Date.now() > entry.expiry) {
+    if (Date.now() >= entry.expiry) {
       cache.delete(key)
       misses++
       request.cacheKey = key
