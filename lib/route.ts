@@ -1,4 +1,3 @@
-// This file is generated from lib/route.ts. Do not edit directly.
 'use strict'
 
 import * as http from 'http'
@@ -177,8 +176,8 @@ function buildRouting (options: any): RoutingApi {
   let throwIfAlreadyStarted: (msg: string) => void
   let disableRequestLogging: boolean | ((req: any) => boolean) | undefined
   let disableRequestLoggingFn: ((req: any) => boolean) | undefined
-  let ignoreTrailingSlash: boolean
-  let ignoreDuplicateSlashes: boolean
+  let ignoreTrailingSlash: boolean | undefined
+  let ignoreDuplicateSlashes: boolean | undefined
   let return503OnClosing: boolean
   let globalExposeHeadRoutes: boolean
   let keepAliveConnections: Set<any>
@@ -204,8 +203,8 @@ function buildRouting (options: any): RoutingApi {
         disableRequestLoggingFn = options.disableRequestLogging as (req: any) => boolean
       }
 
-      ignoreTrailingSlash = options.routerOptions?.ignoreTrailingSlash as boolean
-      ignoreDuplicateSlashes = options.routerOptions?.ignoreDuplicateSlashes as boolean
+      ignoreTrailingSlash = options.routerOptions.ignoreTrailingSlash
+      ignoreDuplicateSlashes = options.routerOptions.ignoreDuplicateSlashes
       return503OnClosing = Object.hasOwn(options, 'return503OnClosing') ? options.return503OnClosing as boolean : true
       keepAliveConnections = fastifyArgs.keepAliveConnections
     },
