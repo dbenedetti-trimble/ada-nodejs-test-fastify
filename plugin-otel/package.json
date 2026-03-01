@@ -17,5 +17,10 @@
   },
   "dependencies": {
     "fastify-plugin": "^5.0.0"
+  },
+  "devDependencies": {
+    "@opentelemetry/api": ">=1.4.0",
+    "@opentelemetry/sdk-trace-node": ">=1.0.0",
+    "proxyquire": "^2.1.3"
   }
 }
