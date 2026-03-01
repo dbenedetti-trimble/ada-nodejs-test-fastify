@@ -72,6 +72,7 @@ const schema = {
     },
     maxRequestsPerSocket: { type: 'integer', default: defaultInitOptions.maxRequestsPerSocket, nullable: true },
     requestTimeout: { type: 'integer', default: defaultInitOptions.requestTimeout },
+    routeTimeout: { type: 'integer', default: 0 },
     bodyLimit: { type: 'integer', default: defaultInitOptions.bodyLimit },
     caseSensitive: { type: 'boolean', default: defaultInitOptions.caseSensitive },
     allowUnsafeRegex: { type: 'boolean', default: defaultInitOptions.allowUnsafeRegex },

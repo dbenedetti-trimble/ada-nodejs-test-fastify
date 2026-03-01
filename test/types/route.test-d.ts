@@ -551,3 +551,14 @@ expectType<FastifyInstance>(fastify().route({
     expectAssignable<string | Array<string>>(req.routeOptions.method)
   }
 }))
+
+// Per-route requestTimeout type
+const serverForTimeout = fastify()
+serverForTimeout.get('/timeout', { requestTimeout: 5000 }, async (request) => {
+  expectType<number | undefined>(request.routeOptions.requestTimeout)
+  return { ok: true }
+})
+serverForTimeout.get('/notimeout', {}, async (request) => {
+  expectType<number | undefined>(request.routeOptions.requestTimeout)
+  return { ok: true }
+})

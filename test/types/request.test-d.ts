@@ -185,3 +185,9 @@ FastifyInstance<RawServerDefault, RawRequestDefaultExpression, RawReplyDefaultEx
 >(serverWithCustomLogger)
 
 serverWithCustomLogger.get('/get', getHandlerWithCustomLogger)
+
+// Per-route request timeout types
+const signalHandler: RouteHandlerMethod = function (request, _reply) {
+  expectType<AbortSignal>(request.signal)
+  expectType<number | undefined>(request.routeOptions.requestTimeout)
+}
