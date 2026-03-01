@@ -1,0 +1,27 @@
+{
+  "name": "fastify-otel",
+  "version": "0.1.0",
+  "description": "OpenTelemetry instrumentation plugin for Fastify",
+  "main": "index.js",
+  "scripts": {
+    "test": "borp",
+    "unit": "borp"
+  },
+  "dependencies": {
+    "fastify-plugin": "^5.0.0"
+  },
+  "peerDependencies": {
+    "@opentelemetry/api": ">=1.4.0"
+  },
+  "peerDependenciesMeta": {
+    "@opentelemetry/api": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/sdk-trace-node": "^1.30.0",
+    "borp": "^1.0.0",
+    "fastify": "^5.0.0"
+  }
+}
