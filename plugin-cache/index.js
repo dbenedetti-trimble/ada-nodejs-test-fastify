@@ -22,7 +22,7 @@ async function cachePlugin (fastify, opts) {
   function buildCacheKey (request, varyHeaders) {
     const varyPart = varyHeaders
       .map(h => h + ':' + (request.headers[h] || ''))
-      .join(',')
+      .join('|')
     return request.method + '|' + request.url + '|' + varyPart
   }
 
@@ -74,6 +74,8 @@ async function cachePlugin (fastify, opts) {
 
     if (reqCc.noCache) {
       request[kBypassCache] = true
+      misses++
+      reply.header('x-cache', 'MISS')
       return
     }
 
@@ -95,6 +97,7 @@ async function cachePlugin (fastify, opts) {
     request[kCacheHit] = true
     const ifNoneMatch = request.headers['if-none-match']
     if (ifNoneMatch && matchesETag(ifNoneMatch, entry.etag)) {
+      reply.header('etag', entry.etag).header('x-cache', 'HIT')
       return reply.code(304).send()
     }
 
