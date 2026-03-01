@@ -1,0 +1,20 @@
+{
+  "name": "fastify-response-cache",
+  "version": "0.1.0",
+  "description": "In-memory LRU response cache plugin for Fastify with ETag, Cache-Control, and conditional request support",
+  "main": "index.js",
+  "types": "types/index.d.ts",
+  "license": "MIT",
+  "keywords": [
+    "fastify",
+    "plugin",
+    "cache",
+    "lru",
+    "etag",
+    "http-cache"
+  ],
+  "peerDependencies": {
+    "fastify": "^5.0.0",
+    "fastify-plugin": "^5.0.0"
+  }
+}
