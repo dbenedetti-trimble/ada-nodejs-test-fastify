@@ -172,6 +172,19 @@ test('invalid requestTimeout values throw FST_ERR_ROUTE_REQUEST_TIMEOUT_OPTION_N
   }
 })
 
+test('request.routeOptions.requestTimeout returns undefined when no timeout configured', async t => {
+  t.plan(1)
+  const fastify = Fastify()
+  t.after(() => fastify.close())
+
+  fastify.get('/none', async (req) => {
+    t.assert.strictEqual(req.routeOptions.requestTimeout, undefined)
+    return {}
+  })
+
+  await fastify.inject({ method: 'GET', url: '/none' })
+})
+
 test('request.routeOptions.requestTimeout returns effective timeout', async t => {
   t.plan(2)
   const fastify = Fastify({ routeTimeout: 30000 })
