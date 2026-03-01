@@ -1,0 +1,14 @@
+export declare const FST_ERR_SCH_VALIDATION_BUILD: new (...args: any[]) => Error;
+export declare const FST_ERR_SCH_SERIALIZATION_BUILD: new (...args: any[]) => Error;
+export declare const FST_ERR_DUPLICATED_ROUTE: new (...args: any[]) => Error;
+export declare const FST_ERR_INVALID_URL: new (...args: any[]) => Error;
+export declare const FST_ERR_HOOK_INVALID_HANDLER: new (...args: any[]) => Error;
+export declare const FST_ERR_ROUTE_OPTIONS_NOT_OBJ: new (...args: any[]) => Error;
+export declare const FST_ERR_ROUTE_DUPLICATED_HANDLER: new (...args: any[]) => Error;
+export declare const FST_ERR_ROUTE_HANDLER_NOT_FN: new (...args: any[]) => Error;
+export declare const FST_ERR_ROUTE_MISSING_HANDLER: new (...args: any[]) => Error;
+export declare const FST_ERR_ROUTE_METHOD_NOT_SUPPORTED: new (...args: any[]) => Error;
+export declare const FST_ERR_ROUTE_METHOD_INVALID: new (...args: any[]) => Error;
+export declare const FST_ERR_ROUTE_BODY_VALIDATION_SCHEMA_NOT_SUPPORTED: new (...args: any[]) => Error;
+export declare const FST_ERR_ROUTE_BODY_LIMIT_OPTION_NOT_INT: new (...args: any[]) => Error;
+export declare const FST_ERR_HOOK_INVALID_ASYNC_HANDLER: new (...args: any[]) => Error;

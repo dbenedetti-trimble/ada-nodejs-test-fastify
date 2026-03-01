@@ -31,5 +31,11 @@ module.exports = [
     rules: {
       'max-len': 'off'
     }
+  },
+  {
+    files: ['lib/**/*.ts'],
+    rules: {
+      '@typescript-eslint/no-require-imports': 'off'
+    }
   }
 ]
