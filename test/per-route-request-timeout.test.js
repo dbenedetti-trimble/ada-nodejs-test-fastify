@@ -279,17 +279,27 @@ test('streaming response: timeout aborts signal but logs warning without sending
   t.after(() => fastify.close())
 
   let capturedSignal
+  // Set in the handler before reply.raw.write() so it is always populated by
+  // the time fetch() resolves (headers are sent after write(), after this is set).
+  let signalAbortedPromise
 
   fastify.get('/stream', { requestTimeout: 200 }, async (request, reply) => {
     capturedSignal = request.signal
+    signalAbortedPromise = new Promise(resolve => {
+      request.signal.addEventListener('abort', resolve, { once: true })
+    })
     reply.hijack()
     reply.raw.write('hello')
-    await sleep(500)
+    // Wait for the per-route timeout to abort the signal, then close the stream
+    await signalAbortedPromise
     reply.raw.end()
   })
 
   await fastify.listen({ port: 0 })
+  // fetch() resolves when response headers arrive, which is before the 200ms
+  // timeout fires.  Wait for the signal abort promise before asserting.
   const res = await fetch(`http://localhost:${fastify.server.address().port}/stream`)
+  await signalAbortedPromise
 
   t.assert.ok(capturedSignal.aborted, 'signal should be aborted after timeout')
   t.assert.notStrictEqual(res.status, 408, 'should not send 408 for streaming response')
