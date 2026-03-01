@@ -1,5 +1,5 @@
 declare class Context {
-  constructor(opts: {
+  constructor (opts: {
     schema: any;
     handler: any;
     config: any;

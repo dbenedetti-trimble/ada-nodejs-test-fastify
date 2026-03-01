@@ -1,1 +1,1 @@
-export declare function normalizeSchema(schema: any, initialConfig: any): any;
+export declare function normalizeSchema (schema: any, initialConfig: any): any;

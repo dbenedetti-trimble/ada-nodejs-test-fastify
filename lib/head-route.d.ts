@@ -1,1 +1,1 @@
-export declare function parseHeadOnSendHandlers(onSend: any): any;
+export declare function parseHeadOnSendHandlers (onSend: any): any;

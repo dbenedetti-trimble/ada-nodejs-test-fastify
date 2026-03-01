@@ -1,1 +1,1 @@
-export declare function getGenReqId(server: any, req: any): any;
+export declare function getGenReqId (server: any, req: any): any;
