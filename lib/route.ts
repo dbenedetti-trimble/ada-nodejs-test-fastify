@@ -65,13 +65,13 @@ const routerKeys = [
 interface RoutingApi {
   setup(options: any, fastifyArgs: any): void;
   routing: (req: any, res: any, ctx: any) => void;
-  route(opts: { options: any; isFastify: boolean }): void;
+  route(opts: { options: any; isFastify: boolean }): any;
   hasRoute(opts: { options: any }): boolean;
   prepareRoute(opts: { method: any; url: any; options: any; handler?: any; isFastify: boolean }): any;
   routeHandler(req: any, res: any, params: any, context: any, query: any): void;
   closeRoutes(): void;
   printRoutes(opts?: any): string;
-  addConstraintStrategy(strategy: any): void;
+  addConstraintStrategy(strategy: any): any;
   hasConstraintStrategy(strategyName: string): boolean;
   isAsyncConstraint(): boolean;
   findRoute(opts: { method: string; url: string; constraints?: any }): { handler: any; params: any; searchParams: any } | null;
