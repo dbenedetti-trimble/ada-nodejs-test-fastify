@@ -9,20 +9,24 @@ class LRUCache {
   }
 
   get (key) {
-    // TODO(features): implement LRU get with TTL expiry check and MRU promotion
-    // - if key not in map, return undefined
-    // - if entry.expiry > 0 and Date.now() > entry.expiry, delete and return undefined
-    // - delete + re-insert to move to MRU position
-    // - return entry
-    throw new Error('not implemented')
+    if (!this.#map.has(key)) return undefined
+    const entry = this.#map.get(key)
+    if (entry.expiry > 0 && Date.now() > entry.expiry) {
+      this.#map.delete(key)
+      return undefined
+    }
+    this.#map.delete(key)
+    this.#map.set(key, entry)
+    return entry
   }
 
   set (key, value) {
-    // TODO(features): implement LRU set with eviction
-    // - if key already exists, delete it first
-    // - else if size >= maxItems, evict LRU (map.keys().next().value)
-    // - insert new entry at end
-    throw new Error('not implemented')
+    if (this.#map.has(key)) {
+      this.#map.delete(key)
+    } else if (this.#map.size >= this.#maxItems) {
+      this.#map.delete(this.#map.keys().next().value)
+    }
+    this.#map.set(key, value)
   }
 
   delete (key) {

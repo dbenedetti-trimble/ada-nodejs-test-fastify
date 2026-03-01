@@ -36,11 +36,12 @@ test('LRU evicts least recently used', async t => {
   await fastify.inject({ method: 'GET', url: '/b' }) // miss, stored, /a is LRU
   await fastify.inject({ method: 'GET', url: '/c' }) // miss, stored, /a evicted
 
-  const aResult = await fastify.inject({ method: 'GET', url: '/a' })
-  t.assert.strictEqual(aResult.headers['x-cache'], 'MISS') // evicted
-
+  // check /b first so its HIT promotes /b to MRU before /a miss triggers re-storage
   const bResult = await fastify.inject({ method: 'GET', url: '/b' })
   t.assert.strictEqual(bResult.headers['x-cache'], 'HIT') // still cached
+
+  const aResult = await fastify.inject({ method: 'GET', url: '/a' })
+  t.assert.strictEqual(aResult.headers['x-cache'], 'MISS') // evicted
   await fastify.close()
 })
 

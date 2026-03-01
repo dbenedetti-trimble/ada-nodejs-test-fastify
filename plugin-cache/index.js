@@ -1,6 +1,7 @@
 'use strict'
 
 const fp = require('fastify-plugin')
+const { Readable } = require('node:stream')
 const LRUCache = require('./lib/lru-cache')
 const { parseCacheControl } = require('./lib/cache-control')
 const { generateETag, etagMatches } = require('./lib/etag')
@@ -15,10 +16,8 @@ const { generateETag, etagMatches } = require('./lib/etag')
  * @returns {string}
  */
 function deriveCacheKey (request, varyHeaders) {
-  // TODO(features): implement cache key derivation
-  // - build vary segment: varyHeaders.map(h => h + ':' + (request.headers[h] || '')).join('|')
-  // - return request.method + '|' + request.url + '|' + varySegment
-  return request.method + '|' + request.url + '|'
+  const varySegment = varyHeaders.map(h => h + ':' + (request.headers[h] || '')).join('|')
+  return request.method + '|' + request.url + '|' + varySegment
 }
 
 async function cachePlugin (fastify, opts) {
@@ -32,19 +31,25 @@ async function cachePlugin (fastify, opts) {
   let misses = 0
 
   function purge (key) {
-    // TODO(features): delete key from store, return boolean
-    return false
+    return store.delete(key)
   }
 
   function purgeByPrefix (urlPrefix) {
-    // TODO(features): iterate store.keys(), remove entries whose URL segment starts with urlPrefix
-    // URL segment is the second pipe-delimited part of the key
-    // return count of removed entries
-    return 0
+    let count = 0
+    for (const key of [...store.keys()]) {
+      const urlSegment = key.split('|')[1]
+      if (urlSegment && urlSegment.startsWith(urlPrefix)) {
+        store.delete(key)
+        count++
+      }
+    }
+    return count
   }
 
   function clear () {
-    // TODO(features): store.clear(), reset hits and misses
+    store.clear()
+    hits = 0
+    misses = 0
   }
 
   function stats () {
@@ -59,36 +64,90 @@ async function cachePlugin (fastify, opts) {
   fastify.decorate('cache', { purge, purgeByPrefix, clear, stats })
 
   fastify.addHook('onRequest', async function onRequestHook (request, reply) {
-    // TODO(features): implement full onRequest cache-hit logic
-    // 1. If no cache config on route, return
-    // 2. If method not in methods set, return
-    // 3. Parse request Cache-Control
-    // 4. Derive cache key
-    // 5. Look up in store (check expiry)
-    // 6. Hit: check If-None-Match, send 304 or cached response, return reply
-    // 7. Miss: set X-Cache: MISS, increment misses
     const cacheConfig = request.routeOptions && request.routeOptions.config && request.routeOptions.config.cache
     if (!cacheConfig) return
     if (!methods.has(request.method)) return
-    // placeholder: always miss
-    reply.header('x-cache', 'MISS')
-    misses++
+
+    const reqCC = parseCacheControl(request.headers['cache-control'])
+
+    if (reqCC['no-store']) {
+      request.cacheBypass = true
+      reply.header('x-cache', 'MISS')
+      misses++
+      return
+    }
+
+    const routeVary = (typeof cacheConfig === 'object' && cacheConfig.vary)
+      ? cacheConfig.vary.map(h => h.toLowerCase())
+      : []
+    const mergedVary = [...new Set([...globalVary, ...routeVary])].sort()
+    request.cacheKey = deriveCacheKey(request, mergedVary)
+
+    if (reqCC['no-cache']) {
+      reply.header('x-cache', 'MISS')
+      misses++
+      return
+    }
+
+    const entry = store.get(request.cacheKey)
+    if (!entry) {
+      misses++
+      reply.header('x-cache', 'MISS')
+      return
+    }
+
+    hits++
+    reply.header('x-cache', 'HIT')
+    if (entry.etag) reply.header('etag', entry.etag)
+    if (entry.contentType) reply.header('content-type', entry.contentType)
+
+    const ifNoneMatch = request.headers['if-none-match']
+    if (ifNoneMatch && etagMatches(ifNoneMatch, entry.etag)) {
+      reply.code(304)
+      request.cacheHit = true
+      return reply.send('')
+    }
+
+    request.cacheHit = true
+    return reply.send(entry.body)
   })
 
   fastify.addHook('onSend', async function onSendHook (request, reply, payload) {
-    // TODO(features): implement full onSend cache-store logic
-    // 1. If no cache config on route, return payload
-    // 2. If bypass no-store flag set, return payload
-    // 3. If method not in methods set, return payload
-    // 4. If statusCode outside 2xx, return payload
-    // 5. If payload is Readable, return payload (streams not supported)
-    // 6. Parse response Cache-Control
-    // 7. If no-store or private, return payload
-    // 8. Generate ETag, compute TTL, store entry
-    // 9. Set ETag header
-    // 10. Return payload unchanged
     const cacheConfig = request.routeOptions && request.routeOptions.config && request.routeOptions.config.cache
     if (!cacheConfig) return payload
+    if (request.cacheHit) return payload
+    if (request.cacheBypass) return payload
+    if (!methods.has(request.method)) return payload
+    if (reply.statusCode < 200 || reply.statusCode >= 300) return payload
+    if (payload instanceof Readable) return payload
+
+    const resCC = parseCacheControl(reply.getHeader('cache-control'))
+    if (resCC['no-store'] || resCC['private']) return payload
+
+    const etag = generateETag(payload || '')
+    reply.header('etag', etag)
+
+    let ttl = defaultTtl
+    if (typeof cacheConfig === 'object' && cacheConfig.ttl != null) {
+      ttl = cacheConfig.ttl
+    }
+    if (resCC['s-maxage'] != null) {
+      ttl = resCC['s-maxage'] * 1000
+    } else if (resCC['max-age'] != null) {
+      ttl = resCC['max-age'] * 1000
+    }
+
+    const key = request.cacheKey
+    if (!key) return payload
+
+    const expiry = ttl > 0 ? Date.now() + ttl : 0
+    store.set(key, {
+      body: payload,
+      etag,
+      contentType: reply.getHeader('content-type'),
+      expiry
+    })
+
     return payload
   })
 }

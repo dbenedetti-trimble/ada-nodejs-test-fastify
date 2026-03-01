@@ -9,14 +9,20 @@
  * @returns {{ 'no-store'?: true, 'no-cache'?: true, private?: true, 'max-age'?: number, 's-maxage'?: number }}
  */
 function parseCacheControl (header) {
-  // TODO(features): implement Cache-Control parser
-  // - return empty object if header is falsy
-  // - split on ',' and trim each token
-  // - for each token: split on '=' to get [directive, value]
-  // - lowercase directive
-  // - for boolean directives (no-store, no-cache, private): set to true
-  // - for value directives (max-age, s-maxage): parse value as integer
-  return {}
+  if (!header) return {}
+  const directives = {}
+  for (const token of header.split(',')) {
+    const trimmed = token.trim()
+    const eqIdx = trimmed.indexOf('=')
+    if (eqIdx === -1) {
+      directives[trimmed.toLowerCase()] = true
+    } else {
+      const directive = trimmed.slice(0, eqIdx).trim().toLowerCase()
+      const value = trimmed.slice(eqIdx + 1).trim()
+      directives[directive] = parseInt(value, 10)
+    }
+  }
+  return directives
 }
 
 module.exports = { parseCacheControl }
