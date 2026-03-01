@@ -6,6 +6,8 @@ module.exports = [
     ignores: [
       'lib/config-validator.js',
       'lib/error-serializer.js',
+      'lib/**/*.ts',
+      'lib/**/*.d.ts',
       'test/same-shape.test.js',
       'test/types/import.js'
     ],
