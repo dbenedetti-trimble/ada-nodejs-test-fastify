@@ -23,7 +23,7 @@ class LRUCache {
   get (key) {
     if (!this._map.has(key)) return undefined
     const value = this._map.get(key)
-    if (value.expiry !== undefined && Date.now() > value.expiry) {
+    if (value.expiry !== undefined && Date.now() >= value.expiry) {
       this._map.delete(key)
       return undefined
     }

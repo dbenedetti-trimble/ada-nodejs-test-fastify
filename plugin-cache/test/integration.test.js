@@ -34,7 +34,7 @@ test('POST requests are not cached even when route opts in', async (t) => {
   fastify.post('/data', { config: { cache: true } }, async () => { calls++; return { ok: true } })
 
   const r1 = await fastify.inject({ method: 'POST', url: '/data', payload: {} })
-  const r2 = await fastify.inject({ method: 'POST', url: '/data', payload: {} })
+  await fastify.inject({ method: 'POST', url: '/data', payload: {} })
   t.assert.equal(r1.headers['x-cache'], undefined, 'no X-Cache on POST')
   t.assert.equal(calls, 2, 'handler runs both times')
 })

@@ -93,9 +93,22 @@ async function cachePlugin (fastify, opts) {
       return
     }
 
+    const ifNoneMatch = request.headers['if-none-match']
+
+    if (entry.mustRevalidate) {
+      if (ifNoneMatch && matchesETag(ifNoneMatch, entry.etag)) {
+        hits++
+        request[kCacheHit] = true
+        reply.header('etag', entry.etag).header('x-cache', 'HIT')
+        return reply.code(304).send()
+      }
+      misses++
+      reply.header('x-cache', 'MISS')
+      return
+    }
+
     hits++
     request[kCacheHit] = true
-    const ifNoneMatch = request.headers['if-none-match']
     if (ifNoneMatch && matchesETag(ifNoneMatch, entry.etag)) {
       reply.header('etag', entry.etag).header('x-cache', 'HIT')
       return reply.code(304).send()
@@ -133,7 +146,7 @@ async function cachePlugin (fastify, opts) {
     } else if (resCc.maxAge !== null) {
       ttl = resCc.maxAge * 1000
     } else if (resCc.noCache) {
-      ttl = 0
+      ttl = defaultTtl
     } else if (cacheConfig !== true && cacheConfig.ttl != null) {
       ttl = cacheConfig.ttl
     } else {
@@ -158,7 +171,8 @@ async function cachePlugin (fastify, opts) {
       statusCode,
       headers: storedHeaders,
       etag,
-      expiry: Date.now() + ttl
+      expiry: Date.now() + ttl,
+      mustRevalidate: resCc.noCache || false
     })
 
     reply.header('etag', etag)

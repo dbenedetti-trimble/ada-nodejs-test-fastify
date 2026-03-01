@@ -60,7 +60,7 @@ const stats = fastify.cache.stats()
 ## Cache key format
 
 ```
-<METHOD>|<url-with-query-string>|<vary-header-1-name>:<value>,<vary-header-2-name>:<value>
+<METHOD>|<url-with-query-string>|<vary-header-1-name>:<value>|<vary-header-2-name>:<value>
 ```
 
 Example with `vary: ['Accept']`:
