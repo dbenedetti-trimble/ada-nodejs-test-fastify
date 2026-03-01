@@ -1,0 +1,11 @@
+{
+  "name": "fastify-response-cache",
+  "version": "0.1.0",
+  "description": "In-memory LRU response cache plugin for Fastify 5.x",
+  "main": "index.js",
+  "types": "types/index.d.ts",
+  "license": "MIT",
+  "dependencies": {
+    "fastify-plugin": "^5.0.0"
+  }
+}
