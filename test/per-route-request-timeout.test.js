@@ -1,6 +1,9 @@
 'use strict'
 
 const { test } = require('node:test')
+const { connect } = require('node:net')
+const split = require('split2')
+const pino = require('pino')
 const fastify = require('..')
 
 function sleep (ms) {
@@ -355,4 +358,72 @@ test('408 response body has proper Fastify error structure', async (t) => {
   t.assert.strictEqual(body.statusCode, 408)
   t.assert.ok(body.error)
   t.assert.ok(body.message)
+})
+
+// VAL-09: request.signal aborts on client disconnect
+test('VAL-09: request.signal aborts on client disconnect', (t, done) => {
+  t.plan(2)
+  const app = fastify()
+  t.after(() => app.close())
+
+  let capturedSignal
+  let resolveHandlerReached
+  const handlerReached = new Promise(resolve => { resolveHandlerReached = resolve })
+
+  app.get('/disconnect', async (request) => {
+    capturedSignal = request.signal
+    resolveHandlerReached()
+    await sleep(5000)
+    return {}
+  })
+
+  app.listen({ port: 0 }, (err) => {
+    t.assert.ifError(err)
+    const port = app.server.address().port
+    const socket = connect(port)
+    socket.write('GET /disconnect HTTP/1.1\r\nHost: localhost\r\n\r\n')
+
+    handlerReached.then(() => {
+      socket.destroy()
+      sleep(100).then(() => {
+        t.assert.strictEqual(capturedSignal.aborted, true)
+        done()
+      })
+    })
+  })
+})
+
+// VAL-14: streaming response - timeout fires but no 408 sent, warning logged
+test('VAL-14: streaming response - timeout logs warning but no 408', async (t) => {
+  t.plan(3)
+  const logStream = split(JSON.parse)
+  const loggerInstance = pino({ level: 'warn' }, logStream)
+  const app = fastify({ loggerInstance })
+  t.after(() => app.close())
+
+  let capturedSignal
+  const warningMessages = []
+
+  logStream.on('data', (line) => {
+    if (line.msg) warningMessages.push(line.msg)
+  })
+
+  app.get('/streaming', { requestTimeout: 200 }, async (request, reply) => {
+    capturedSignal = request.signal
+    reply.hijack()
+    reply.raw.writeHead(200, { 'Content-Type': 'text/plain' })
+    reply.raw.write('chunk1')
+    await sleep(500)
+    reply.raw.end()
+  })
+
+  await app.listen({ port: 0 })
+  const res = await fetch(`http://localhost:${app.server.address().port}/streaming`)
+  t.assert.strictEqual(res.status, 200)
+  t.assert.strictEqual(capturedSignal.aborted, true)
+  await sleep(50)
+  t.assert.ok(
+    warningMessages.some(m => m.includes('per-route timeout fired but response already sent')),
+    'warning was logged for streaming timeout'
+  )
 })
