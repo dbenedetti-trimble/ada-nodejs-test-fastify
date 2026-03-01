@@ -9,22 +9,33 @@
  * @returns {{ noStore: boolean, noCache: boolean, private: boolean, maxAge: number | null, sMaxAge: number | null }}
  */
 function parseCacheControl (headerValue) {
-  // TODO: implement in features pass
-  // 1. Return all-false/null defaults if headerValue is falsy
-  // 2. Split on ',', trim, lowercase each token
-  // 3. For each token:
-  //    - 'no-store'  → noStore = true
-  //    - 'no-cache'  → noCache = true
-  //    - 'private'   → private = true
-  //    - 'max-age=N' → maxAge = parseInt(N) (seconds)
-  //    - 's-maxage=N'→ sMaxAge = parseInt(N) (seconds)
-  return {
+  const result = {
     noStore: false,
     noCache: false,
     private: false,
     maxAge: null,
     sMaxAge: null
   }
+  if (!headerValue) return result
+
+  for (const token of headerValue.split(',')) {
+    const directive = token.trim().toLowerCase()
+    if (directive === 'no-store') {
+      result.noStore = true
+    } else if (directive === 'no-cache') {
+      result.noCache = true
+    } else if (directive === 'private') {
+      result.private = true
+    } else if (directive.startsWith('max-age=')) {
+      const n = parseInt(directive.slice(8), 10)
+      if (!isNaN(n)) result.maxAge = n
+    } else if (directive.startsWith('s-maxage=')) {
+      const n = parseInt(directive.slice(9), 10)
+      if (!isNaN(n)) result.sMaxAge = n
+    }
+  }
+
+  return result
 }
 
 module.exports = parseCacheControl

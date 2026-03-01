@@ -5,7 +5,7 @@ const Fastify = require('../..')
 const cachePlugin = require('..')
 
 // VAL-01: Plugin registers with defaults
-test('plugin registers without error using default options', { skip: 'scaffold stub' }, async (t) => {
+test('plugin registers without error using default options', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
@@ -16,7 +16,7 @@ test('plugin registers without error using default options', { skip: 'scaffold s
 })
 
 // VAL-02: Plugin registers with custom options
-test('plugin registers with custom maxItems and ttl', { skip: 'scaffold stub' }, async (t) => {
+test('plugin registers with custom maxItems and ttl', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin, { maxItems: 50, ttl: 5000 })
@@ -25,7 +25,7 @@ test('plugin registers with custom maxItems and ttl', { skip: 'scaffold stub' },
 })
 
 // VAL-03: Uncached route is unaffected
-test('uncached route has no X-Cache header and handler always runs', { skip: 'scaffold stub' }, async (t) => {
+test('uncached route has no X-Cache header and handler always runs', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
@@ -38,7 +38,7 @@ test('uncached route has no X-Cache header and handler always runs', { skip: 'sc
 })
 
 // VAL-04: Basic cache miss then hit
-test('first request is a cache miss; second is a hit and handler does not run', { skip: 'scaffold stub' }, async (t) => {
+test('first request is a cache miss; second is a hit and handler does not run', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
@@ -56,7 +56,7 @@ test('first request is a cache miss; second is a hit and handler does not run', 
 })
 
 // VAL-05: Cache key includes query string
-test('different query strings produce different cache entries', { skip: 'scaffold stub' }, async (t) => {
+test('different query strings produce different cache entries', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
@@ -73,7 +73,7 @@ test('different query strings produce different cache entries', { skip: 'scaffol
 })
 
 // VAL-06: Vary header produces different cache entries
-test('different Vary header values produce different cache entries', { skip: 'scaffold stub' }, async (t) => {
+test('different Vary header values produce different cache entries', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)

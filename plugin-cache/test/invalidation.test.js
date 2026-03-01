@@ -5,7 +5,7 @@ const Fastify = require('../..')
 const cachePlugin = require('..')
 
 // VAL-19: Purge removes specific entry
-test('purge(key) removes the exact entry and returns true', { skip: 'scaffold stub' }, async (t) => {
+test('purge(key) removes the exact entry and returns true', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
@@ -18,7 +18,7 @@ test('purge(key) removes the exact entry and returns true', { skip: 'scaffold st
   t.assert.equal(r.headers['x-cache'], 'MISS', 'entry purged')
 })
 
-test('purge(key) returns false when key does not exist', { skip: 'scaffold stub' }, async (t) => {
+test('purge(key) returns false when key does not exist', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
@@ -27,7 +27,7 @@ test('purge(key) returns false when key does not exist', { skip: 'scaffold stub'
 })
 
 // VAL-20: Purge by prefix removes matching entries
-test('purgeByPrefix removes all entries with matching URL prefix', { skip: 'scaffold stub' }, async (t) => {
+test('purgeByPrefix removes all entries with matching URL prefix', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
@@ -50,7 +50,7 @@ test('purgeByPrefix removes all entries with matching URL prefix', { skip: 'scaf
 })
 
 // VAL-21: Clear removes all entries
-test('clear() empties cache and stats().items becomes 0', { skip: 'scaffold stub' }, async (t) => {
+test('clear() empties cache and stats().items becomes 0', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
@@ -68,7 +68,7 @@ test('clear() empties cache and stats().items becomes 0', { skip: 'scaffold stub
 })
 
 // VAL-22: Stats track hits and misses
-test('stats().hits and stats().misses increment correctly', { skip: 'scaffold stub' }, async (t) => {
+test('stats().hits and stats().misses increment correctly', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)

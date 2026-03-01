@@ -5,7 +5,7 @@ const Fastify = require('../..')
 const cachePlugin = require('..')
 
 // VAL-12: Cache-Control: no-store prevents caching
-test('response with Cache-Control: no-store is not cached', { skip: 'scaffold stub' }, async (t) => {
+test('response with Cache-Control: no-store is not cached', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
@@ -22,7 +22,7 @@ test('response with Cache-Control: no-store is not cached', { skip: 'scaffold st
 })
 
 // VAL-13: Cache-Control: private prevents caching
-test('response with Cache-Control: private is not cached', { skip: 'scaffold stub' }, async (t) => {
+test('response with Cache-Control: private is not cached', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
@@ -39,7 +39,7 @@ test('response with Cache-Control: private is not cached', { skip: 'scaffold stu
 })
 
 // VAL-14: Cache-Control: max-age overrides route TTL
-test('response Cache-Control: max-age=1 overrides route ttl and expires after 1s', { skip: 'scaffold stub' }, async (t) => {
+test('response Cache-Control: max-age=1 overrides route ttl and expires after 1s', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
@@ -55,7 +55,7 @@ test('response Cache-Control: max-age=1 overrides route ttl and expires after 1s
 })
 
 // VAL-15: Cache-Control: s-maxage takes priority
-test('s-maxage takes priority over max-age', { skip: 'scaffold stub' }, async (t) => {
+test('s-maxage takes priority over max-age', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
@@ -71,7 +71,7 @@ test('s-maxage takes priority over max-age', { skip: 'scaffold stub' }, async (t
 })
 
 // VAL-16: Request Cache-Control: no-cache bypasses cache
-test('request with Cache-Control: no-cache bypasses cache and refreshes entry', { skip: 'scaffold stub' }, async (t) => {
+test('request with Cache-Control: no-cache bypasses cache and refreshes entry', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)

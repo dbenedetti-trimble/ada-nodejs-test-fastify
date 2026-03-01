@@ -10,11 +10,11 @@ const { createHash } = require('node:crypto')
  * @returns {string}
  */
 function generateETag (body) {
-  // TODO: implement in features pass
-  // 1. Normalize body to Buffer
-  // 2. SHA-256 hash, hex digest, slice first 16 chars
-  // 3. Return 'W/"' + hash + '"'
-  return 'W/"0000000000000000"'
+  const buf = Buffer.isBuffer(body)
+    ? body
+    : Buffer.from(typeof body === 'string' ? body : JSON.stringify(body))
+  const hash = createHash('sha256').update(buf).digest('hex').slice(0, 16)
+  return 'W/"' + hash + '"'
 }
 
 /**
@@ -28,11 +28,8 @@ function generateETag (body) {
  * @returns {boolean}
  */
 function matchesETag (ifNoneMatch, storedETag) {
-  // TODO: implement in features pass
-  // 1. If ifNoneMatch === '*', return true
-  // 2. Split on ',', trim each value
-  // 3. Return true if any token === storedETag
-  return false
+  if (ifNoneMatch === '*') return true
+  return ifNoneMatch.split(',').some(token => token.trim() === storedETag)
 }
 
 module.exports = { generateETag, matchesETag }

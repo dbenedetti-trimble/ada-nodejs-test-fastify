@@ -21,12 +21,15 @@ class LRUCache {
    * @returns {{ body, statusCode, headers, etag, expiry } | undefined}
    */
   get (key) {
-    // TODO: implement in features pass
-    // 1. Check if key exists
-    // 2. Check expiry; delete and return undefined if expired
-    // 3. Move to tail (delete + re-insert)
-    // 4. Return value
-    return undefined
+    if (!this._map.has(key)) return undefined
+    const value = this._map.get(key)
+    if (value.expiry !== undefined && Date.now() > value.expiry) {
+      this._map.delete(key)
+      return undefined
+    }
+    this._map.delete(key)
+    this._map.set(key, value)
+    return value
   }
 
   /**
@@ -34,10 +37,12 @@ class LRUCache {
    * @param {{ body, statusCode, headers, etag, expiry }} value
    */
   set (key, value) {
-    // TODO: implement in features pass
-    // 1. If key already exists, delete it (re-insert at tail)
-    // 2. If at capacity, evict head (oldest)
-    // 3. Insert key → value
+    if (this._map.has(key)) {
+      this._map.delete(key)
+    } else if (this._map.size >= this._max) {
+      this._map.delete(this._map.keys().next().value)
+    }
+    this._map.set(key, value)
   }
 
   /**

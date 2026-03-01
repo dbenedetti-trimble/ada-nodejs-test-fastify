@@ -5,7 +5,7 @@ const Fastify = require('../..')
 const cachePlugin = require('..')
 
 // VAL-03: Uncached route is unaffected (integration scenario)
-test('multiple routes: cached and uncached coexist without interference', { skip: 'scaffold stub' }, async (t) => {
+test('multiple routes: cached and uncached coexist without interference', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
@@ -26,7 +26,7 @@ test('multiple routes: cached and uncached coexist without interference', { skip
 })
 
 // VAL-17: Non-GET requests are not cached
-test('POST requests are not cached even when route opts in', { skip: 'scaffold stub' }, async (t) => {
+test('POST requests are not cached even when route opts in', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
@@ -40,7 +40,7 @@ test('POST requests are not cached even when route opts in', { skip: 'scaffold s
 })
 
 // VAL-18: Non-2xx responses are not cached
-test('4xx and 5xx responses are not stored in cache', { skip: 'scaffold stub' }, async (t) => {
+test('4xx and 5xx responses are not stored in cache', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
@@ -57,7 +57,7 @@ test('4xx and 5xx responses are not stored in cache', { skip: 'scaffold stub' },
 })
 
 // VAL-23: No regressions — the plugin does not affect normal Fastify behavior
-test('existing Fastify behavior unaffected: basic JSON route works', { skip: 'scaffold stub' }, async (t) => {
+test('existing Fastify behavior unaffected: basic JSON route works', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
@@ -68,7 +68,7 @@ test('existing Fastify behavior unaffected: basic JSON route works', { skip: 'sc
 })
 
 // Content-Type header preserved on cache hit
-test('cache hit preserves original Content-Type header', { skip: 'scaffold stub' }, async (t) => {
+test('cache hit preserves original Content-Type header', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)

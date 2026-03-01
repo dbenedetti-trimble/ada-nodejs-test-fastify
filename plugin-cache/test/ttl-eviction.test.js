@@ -5,7 +5,7 @@ const Fastify = require('../..')
 const cachePlugin = require('..')
 
 // VAL-07: TTL expiry
-test('entry is a miss after TTL expires', { skip: 'scaffold stub' }, async (t) => {
+test('entry is a miss after TTL expires', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
@@ -24,7 +24,7 @@ test('entry is a miss after TTL expires', { skip: 'scaffold stub' }, async (t) =
 })
 
 // VAL-08: LRU eviction
-test('LRU evicts least recently used entry when maxItems exceeded', { skip: 'scaffold stub' }, async (t) => {
+test('LRU evicts least recently used entry when maxItems exceeded', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin, { maxItems: 2 })
@@ -37,14 +37,14 @@ test('LRU evicts least recently used entry when maxItems exceeded', { skip: 'sca
   await fastify.inject({ method: 'GET', url: '/b' }) // miss, stored (evicts nothing; size=2)
   await fastify.inject({ method: 'GET', url: '/c' }) // miss, stored (evicts /a)
 
-  const ra = await fastify.inject({ method: 'GET', url: '/a' })
-  t.assert.equal(ra.headers['x-cache'], 'MISS', '/a was evicted')
   const rb = await fastify.inject({ method: 'GET', url: '/b' })
   t.assert.equal(rb.headers['x-cache'], 'HIT', '/b still cached')
+  const ra = await fastify.inject({ method: 'GET', url: '/a' })
+  t.assert.equal(ra.headers['x-cache'], 'MISS', '/a was evicted')
 })
 
 // VAL-09: LRU access updates recency
-test('accessing an entry refreshes its recency and prevents eviction', { skip: 'scaffold stub' }, async (t) => {
+test('accessing an entry refreshes its recency and prevents eviction', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin, { maxItems: 2 })

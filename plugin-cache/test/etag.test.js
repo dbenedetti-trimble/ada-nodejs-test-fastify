@@ -5,7 +5,7 @@ const Fastify = require('../..')
 const cachePlugin = require('..')
 
 // VAL-10: ETag conditional request returns 304
-test('If-None-Match with matching ETag returns 304 with no body', { skip: 'scaffold stub' }, async (t) => {
+test('If-None-Match with matching ETag returns 304 with no body', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
@@ -26,7 +26,7 @@ test('If-None-Match with matching ETag returns 304 with no body', { skip: 'scaff
 })
 
 // VAL-11: ETag mismatch returns full response
-test('If-None-Match with non-matching ETag returns 200 with full body', { skip: 'scaffold stub' }, async (t) => {
+test('If-None-Match with non-matching ETag returns 200 with full body', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
@@ -44,7 +44,7 @@ test('If-None-Match with non-matching ETag returns 200 with full body', { skip: 
 })
 
 // If-None-Match: * wildcard
-test('If-None-Match: * returns 304 when any cached response exists for the route', { skip: 'scaffold stub' }, async (t) => {
+test('If-None-Match: * returns 304 when any cached response exists for the route', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
@@ -61,7 +61,7 @@ test('If-None-Match: * returns 304 when any cached response exists for the route
 })
 
 // Multiple ETags in If-None-Match
-test('If-None-Match with comma-separated list checks all values', { skip: 'scaffold stub' }, async (t) => {
+test('If-None-Match with comma-separated list checks all values', async (t) => {
   const fastify = Fastify()
   t.after(() => fastify.close())
   await fastify.register(cachePlugin)
