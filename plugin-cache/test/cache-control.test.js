@@ -86,6 +86,36 @@ test('Request Cache-Control: no-cache bypasses cache but stores fresh response',
   await fastify.close()
 })
 
+// CACHE-7: Response Cache-Control: no-cache is stored but always revalidated
+test('Cache-Control: no-cache on response forces revalidation on next request', async t => {
+  const fastify = await buildFastify()
+  let calls = 0
+  fastify.get('/rnc', { config: { cache: true } }, async (req, reply) => {
+    calls++
+    reply.header('cache-control', 'no-cache')
+    return { c: calls }
+  })
+  await fastify.inject({ method: 'GET', url: '/rnc' }) // miss, stored with noCache
+  t.assert.strictEqual(calls, 1)
+
+  // second request without conditional header must re-run the handler
+  const r2 = await fastify.inject({ method: 'GET', url: '/rnc' })
+  t.assert.strictEqual(r2.headers['x-cache'], 'MISS')
+  t.assert.strictEqual(calls, 2)
+
+  // conditional request with matching ETag returns 304 without running handler
+  const etag = r2.headers.etag
+  const r3 = await fastify.inject({
+    method: 'GET',
+    url: '/rnc',
+    headers: { 'if-none-match': etag }
+  })
+  t.assert.strictEqual(r3.statusCode, 304)
+  t.assert.strictEqual(r3.body, '')
+  t.assert.strictEqual(calls, 2)
+  await fastify.close()
+})
+
 // Request Cache-Control: no-store bypasses cache and does not store
 test('Request Cache-Control: no-store bypasses cache and does not store', async t => {
   const fastify = await buildFastify()

@@ -96,6 +96,21 @@ async function cachePlugin (fastify, opts) {
       return
     }
 
+    if (entry.noCache) {
+      const ifNoneMatch = request.headers['if-none-match']
+      if (ifNoneMatch && etagMatches(ifNoneMatch, entry.etag)) {
+        hits++
+        reply.header('x-cache', 'HIT')
+        if (entry.etag) reply.header('etag', entry.etag)
+        reply.code(304)
+        request.cacheHit = true
+        return reply.send('')
+      }
+      misses++
+      reply.header('x-cache', 'MISS')
+      return
+    }
+
     hits++
     reply.header('x-cache', 'HIT')
     if (entry.etag) reply.header('etag', entry.etag)
@@ -108,6 +123,7 @@ async function cachePlugin (fastify, opts) {
       return reply.send('')
     }
 
+    reply.code(entry.statusCode)
     request.cacheHit = true
     return reply.send(entry.body)
   })
@@ -123,6 +139,8 @@ async function cachePlugin (fastify, opts) {
 
     const resCC = parseCacheControl(reply.getHeader('cache-control'))
     if (resCC['no-store'] || resCC['private']) return payload
+
+    const noCacheResponse = resCC['no-cache'] === true
 
     const etag = generateETag(payload || '')
     reply.header('etag', etag)
@@ -143,8 +161,10 @@ async function cachePlugin (fastify, opts) {
     const expiry = ttl > 0 ? Date.now() + ttl : 0
     store.set(key, {
       body: payload,
+      statusCode: reply.statusCode,
       etag,
       contentType: reply.getHeader('content-type'),
+      noCache: noCacheResponse || undefined,
       expiry
     })
 
