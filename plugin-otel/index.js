@@ -62,7 +62,7 @@ async function otelPlugin (fastify, opts) {
       if (request[kOtelSpan]) {
         request[kOtelHookSpan] = tracer.startSpan('fastify.hook.preParsing', { kind: SpanKind.INTERNAL }, request[kOtelCtx])
       }
-      done()
+      done(null, payload)
     })
 
     fastify.addHook('preValidation', function preValidationOtel (request, reply, done) {
@@ -114,7 +114,7 @@ async function otelPlugin (fastify, opts) {
       }
     }
 
-    done()
+    done(null, payload)
   })
 
   fastify.addHook('onError', function onErrorOtel (request, reply, error, done) {
