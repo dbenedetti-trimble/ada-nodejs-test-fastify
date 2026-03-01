@@ -81,7 +81,7 @@ interface FastifyServerOptions {
   logger?: any
   exposeHeadRoutes?: boolean
   disableRequestLogging?: boolean | ((req: any) => boolean)
-  routerOptions?: {
+  routerOptions: {
     ignoreTrailingSlash?: boolean
     ignoreDuplicateSlashes?: boolean
     [key: string]: any
