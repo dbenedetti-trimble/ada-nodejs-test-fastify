@@ -4,10 +4,8 @@
 import * as http from 'http'
 import Context from './context'
 
-// find-my-way ships its own types in the package (v9+)
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const FindMyWay = require('find-my-way') as (options?: any) => any
-import handleRequest from './handle-request.js'
+import FindMyWay from 'find-my-way'
+import handleRequest from './handle-request'
 import {
   onRequestAbortHookRunner,
   lifecycleHooks,
@@ -16,7 +14,7 @@ import {
   onRequestHookRunner
 } from './hooks'
 import { normalizeSchema } from './schemas'
-import { parseHeadOnSendHandlers } from './head-route.js'
+import { parseHeadOnSendHandlers } from './head-route'
 import {
   compileSchemasForValidation,
   compileSchemasForSerialization
@@ -55,10 +53,10 @@ import {
   kRequestAcceptVersion,
   kRouteByFastify,
   kRouteContext
-} from './symbols.js'
+} from './symbols'
 import { buildErrorHandler } from './error-handler'
-import { createChildLogger } from './logger-factory.js'
-import { getGenReqId } from './req-id-gen-factory.js'
+import { createChildLogger } from './logger-factory'
+import { getGenReqId } from './req-id-gen-factory'
 import { FSTDEP022 } from './warnings'
 
 // ---------------------------------------------------------------------------
@@ -175,7 +173,7 @@ function buildRouting (options: any): RoutingApi {
   let fourOhFour: any
   let logger: any
   let hasLogger: boolean
-  let setupResponseListeners: () => void
+  let setupResponseListeners: (reply: any) => void
   let throwIfAlreadyStarted: (msg: string) => void
   let disableRequestLogging: boolean | ((req: any) => boolean) | undefined
   let disableRequestLoggingFn: ((req: any) => boolean) | undefined
