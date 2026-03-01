@@ -767,7 +767,7 @@ describe('Should log a warning if is an async function with `done`', () => {
       })
     } catch (e) {
       t.assert.strictEqual(e.code, 'FST_ERR_HOOK_INVALID_ASYNC_HANDLER')
-      t.assert.strictEqual(e.message, 'Async function has too many arguments. Async hooks should not use the \'done\' argument.')
+      t.assert.strictEqual(e.message, 'Async function for "onRequestAbort" hook has too many arguments. Async hooks should not use the \'done\' argument.')
     }
   })
 
@@ -780,7 +780,7 @@ describe('Should log a warning if is an async function with `done`', () => {
       })
     } catch (e) {
       t.assert.strictEqual(e.code, 'FST_ERR_HOOK_INVALID_ASYNC_HANDLER')
-      t.assert.strictEqual(e.message, 'Async function has too many arguments. Async hooks should not use the \'done\' argument.')
+      t.assert.strictEqual(e.message, 'Async function for "onRequest" hook has too many arguments. Async hooks should not use the \'done\' argument.')
     }
   })
 
@@ -793,7 +793,7 @@ describe('Should log a warning if is an async function with `done`', () => {
       })
     } catch (e) {
       t.assert.strictEqual(e.code, 'FST_ERR_HOOK_INVALID_ASYNC_HANDLER')
-      t.assert.strictEqual(e.message, 'Async function has too many arguments. Async hooks should not use the \'done\' argument.')
+      t.assert.strictEqual(e.message, 'Async function for "onSend" hook has too many arguments. Async hooks should not use the \'done\' argument.')
     }
     try {
       fastify.addHook('preSerialization', async (req, reply, payload, done) => {
@@ -801,7 +801,7 @@ describe('Should log a warning if is an async function with `done`', () => {
       })
     } catch (e) {
       t.assert.strictEqual(e.code, 'FST_ERR_HOOK_INVALID_ASYNC_HANDLER')
-      t.assert.strictEqual(e.message, 'Async function has too many arguments. Async hooks should not use the \'done\' argument.')
+      t.assert.strictEqual(e.message, 'Async function for "preSerialization" hook has too many arguments. Async hooks should not use the \'done\' argument.')
     }
     try {
       fastify.addHook('onError', async (req, reply, payload, done) => {
@@ -809,7 +809,7 @@ describe('Should log a warning if is an async function with `done`', () => {
       })
     } catch (e) {
       t.assert.strictEqual(e.code, 'FST_ERR_HOOK_INVALID_ASYNC_HANDLER')
-      t.assert.strictEqual(e.message, 'Async function has too many arguments. Async hooks should not use the \'done\' argument.')
+      t.assert.strictEqual(e.message, 'Async function for "onError" hook has too many arguments. Async hooks should not use the \'done\' argument.')
     }
   })
 })
@@ -974,7 +974,7 @@ test('Register an hook (preHandler) as route option should fail if mixing async 
     t.assert.fail('preHandler mixing async and callback style')
   } catch (e) {
     t.assert.strictEqual(e.code, 'FST_ERR_HOOK_INVALID_ASYNC_HANDLER')
-    t.assert.strictEqual(e.message, 'Async function has too many arguments. Async hooks should not use the \'done\' argument.')
+    t.assert.strictEqual(e.message, 'Async function for "preHandler" hook has too many arguments. Async hooks should not use the \'done\' argument.')
   }
 })
 
@@ -998,7 +998,7 @@ test('Register an hook (onSend) as route option should fail if mixing async and 
     t.assert.fail('onSend mixing async and callback style')
   } catch (e) {
     t.assert.strictEqual(e.code, 'FST_ERR_HOOK_INVALID_ASYNC_HANDLER')
-    t.assert.strictEqual(e.message, 'Async function has too many arguments. Async hooks should not use the \'done\' argument.')
+    t.assert.strictEqual(e.message, 'Async function for "onSend" hook has too many arguments. Async hooks should not use the \'done\' argument.')
   }
 })
 
@@ -1022,7 +1022,7 @@ test('Register an hook (preSerialization) as route option should fail if mixing 
     t.assert.fail('preSerialization mixing async and callback style')
   } catch (e) {
     t.assert.strictEqual(e.code, 'FST_ERR_HOOK_INVALID_ASYNC_HANDLER')
-    t.assert.strictEqual(e.message, 'Async function has too many arguments. Async hooks should not use the \'done\' argument.')
+    t.assert.strictEqual(e.message, 'Async function for "preSerialization" hook has too many arguments. Async hooks should not use the \'done\' argument.')
   }
 })
 
@@ -1046,7 +1046,7 @@ test('Register an hook (onError) as route option should fail if mixing async and
     t.assert.fail('onError mixing async and callback style')
   } catch (e) {
     t.assert.strictEqual(e.code, 'FST_ERR_HOOK_INVALID_ASYNC_HANDLER')
-    t.assert.strictEqual(e.message, 'Async function has too many arguments. Async hooks should not use the \'done\' argument.')
+    t.assert.strictEqual(e.message, 'Async function for "onError" hook has too many arguments. Async hooks should not use the \'done\' argument.')
   }
 })
 
@@ -1070,7 +1070,7 @@ test('Register an hook (preParsing) as route option should fail if mixing async 
     t.assert.fail('preParsing mixing async and callback style')
   } catch (e) {
     t.assert.strictEqual(e.code, 'FST_ERR_HOOK_INVALID_ASYNC_HANDLER')
-    t.assert.strictEqual(e.message, 'Async function has too many arguments. Async hooks should not use the \'done\' argument.')
+    t.assert.strictEqual(e.message, 'Async function for "preParsing" hook has too many arguments. Async hooks should not use the \'done\' argument.')
   }
 })
 
@@ -1094,6 +1094,81 @@ test('Register an hook (onRequestAbort) as route option should fail if mixing as
     t.assert.fail('onRequestAbort mixing async and callback style')
   } catch (e) {
     t.assert.strictEqual(e.code, 'FST_ERR_HOOK_INVALID_ASYNC_HANDLER')
-    t.assert.strictEqual(e.message, 'Async function has too many arguments. Async hooks should not use the \'done\' argument.')
+    t.assert.strictEqual(e.message, 'Async function for "onRequestAbort" hook has too many arguments. Async hooks should not use the \'done\' argument.')
+  }
+})
+
+test('already started: addHook after listen includes actionable guidance', async t => {
+  t.plan(3)
+  const fastify = Fastify()
+  fastify.get('/', async () => 'ok')
+  await fastify.listen({ port: 0 })
+  t.after(() => fastify.close())
+
+  try {
+    fastify.addHook('onRequest', async () => {})
+    t.assert.fail('should have thrown')
+  } catch (e) {
+    t.assert.strictEqual(e.code, 'FST_ERR_INSTANCE_ALREADY_LISTENING')
+    t.assert.ok(e.message.includes('addHook'))
+    t.assert.ok(e.message.includes('inside a plugin register function'))
+  }
+})
+
+test('already started: route shorthand after listen includes actionable guidance', async t => {
+  t.plan(3)
+  const fastify = Fastify()
+  fastify.get('/', async () => 'ok')
+  await fastify.listen({ port: 0 })
+  t.after(() => fastify.close())
+
+  try {
+    fastify.get('/test', async () => 'test')
+    t.assert.fail('should have thrown')
+  } catch (e) {
+    t.assert.strictEqual(e.code, 'FST_ERR_INSTANCE_ALREADY_LISTENING')
+    t.assert.ok(e.message.includes('route'))
+    t.assert.ok(e.message.includes('inside a plugin register function'))
+  }
+})
+
+test('already started: setErrorHandler after listen includes actionable guidance', async t => {
+  t.plan(3)
+  const fastify = Fastify()
+  fastify.get('/', async () => 'ok')
+  await fastify.listen({ port: 0 })
+  t.after(() => fastify.close())
+
+  try {
+    fastify.setErrorHandler(async () => {})
+    t.assert.fail('should have thrown')
+  } catch (e) {
+    t.assert.strictEqual(e.code, 'FST_ERR_INSTANCE_ALREADY_LISTENING')
+    t.assert.ok(e.message.includes('setErrorHandler'))
+    t.assert.ok(e.message.includes('inside a plugin register function'))
+  }
+})
+
+test('hook name in async arity error: preSerialization route-level hook', t => {
+  const fastify = Fastify()
+
+  try {
+    fastify.get(
+      '/',
+      {
+        preSerialization: [
+          async (request, reply, payload, done) => {
+            done()
+          }
+        ]
+      },
+      async (request, reply) => {
+        return { hello: 'world' }
+      }
+    )
+    t.assert.fail('preSerialization mixing async and callback style')
+  } catch (e) {
+    t.assert.strictEqual(e.code, 'FST_ERR_HOOK_INVALID_ASYNC_HANDLER')
+    t.assert.ok(e.message.includes('preSerialization'))
   }
 })
