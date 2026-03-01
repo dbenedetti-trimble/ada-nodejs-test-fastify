@@ -230,7 +230,7 @@ test('route', async t => {
       handler: function (req, reply) {
         reply.send({ hello: 'world' })
       }
-    }), new FST_ERR_INSTANCE_ALREADY_LISTENING('Cannot add route!'))
+    }), new FST_ERR_INSTANCE_ALREADY_LISTENING('route'))
   })
 })
 
