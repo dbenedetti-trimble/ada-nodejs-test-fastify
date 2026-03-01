@@ -8,12 +8,31 @@
  * @returns {Record<string, string|number>}
  */
 function buildRequestAttributes (request) {
-  // TODO(features): implement attribute extraction per OTEL-5 spec
-  // Required: http.request.method, url.path, url.scheme, server.address,
-  //           server.port, network.protocol.version
-  // Conditional: url.query (omit if absent), user_agent.original (omit if absent),
-  //              http.request.header.content-length (omit if absent, set as number)
-  return {}
+  const urlStr = request.url || ''
+  const qIdx = urlStr.indexOf('?')
+  const path = qIdx === -1 ? urlStr : urlStr.slice(0, qIdx)
+  const query = qIdx === -1 ? undefined : urlStr.slice(qIdx + 1)
+
+  const attrs = {
+    'http.request.method': request.method,
+    'url.path': path,
+    'url.scheme': request.protocol ?? 'http',
+    'server.address': request.hostname,
+    'network.protocol.version': request.raw.httpVersion
+  }
+
+  if (query) attrs['url.query'] = query
+
+  const port = request.server?.address?.()?.port
+  if (port != null) attrs['server.port'] = port
+
+  const ua = request.headers['user-agent']
+  if (ua) attrs['user_agent.original'] = ua
+
+  const cl = request.headers['content-length']
+  if (cl != null) attrs['http.request.header.content-length'] = Number(cl)
+
+  return attrs
 }
 
 /**
@@ -24,10 +43,15 @@ function buildRequestAttributes (request) {
  * @returns {Record<string, string|number>}
  */
 function buildResponseAttributes (request, reply) {
-  // TODO(features): implement attribute extraction per OTEL-5 spec
-  // Required: http.response.status_code (number), http.route (parameterized pattern)
-  // Conditional: http.response.header.content-length (omit if absent, set as number)
-  return {}
+  const attrs = {
+    'http.response.status_code': reply.statusCode,
+    'http.route': request.routeOptions?.url ?? ''
+  }
+
+  const cl = reply.getHeader('content-length')
+  if (cl != null) attrs['http.response.header.content-length'] = Number(cl)
+
+  return attrs
 }
 
 module.exports = { buildRequestAttributes, buildResponseAttributes }

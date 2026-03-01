@@ -1,52 +1,122 @@
 'use strict'
 
-const { test, describe } = require('node:test')
+const { test, describe, after } = require('node:test')
+const { SpanKind } = require('@opentelemetry/api')
+const { createTestSetup } = require('./helpers/setup')
 
-// TODO(features): import OTel SDK test helpers and shared instrumented-Fastify factory
+const { exporter, buildFastify, teardown } = createTestSetup()
+
+after(teardown)
 
 describe('lifecycle hook spans', () => {
-  test('hookSpans: true creates child spans for each hook phase that executes (VAL-07)', async (t) => {
+  test('hookSpans: true creates child spans for lifecycle hook phases (VAL-07)', async (t) => {
     t.plan(2)
-    // TODO(features): register route with onRequest and preHandler user hooks; hookSpans: true
-    // assert spans "fastify.hook.onRequest" and "fastify.hook.preHandler" exported as children of server span
-    t.assert.ok(true, 'placeholder — implement in features pass')
-    t.assert.ok(true, 'placeholder — implement in features pass')
+    const fastify = buildFastify({ hookSpans: true })
+    fastify.get('/test', async () => ({ ok: true }))
+    await fastify.ready()
+    await fastify.inject({ method: 'GET', url: '/test' })
+
+    const spans = exporter.getFinishedSpans()
+    const onRequestSpan = spans.find(s => s.name === 'fastify.hook.onRequest')
+    const preHandlerSpan = spans.find(s => s.name === 'fastify.hook.preHandler')
+    t.assert.ok(onRequestSpan, '"fastify.hook.onRequest" span exists')
+    t.assert.ok(preHandlerSpan, '"fastify.hook.preHandler" span exists')
+    await fastify.close()
   })
 
   test('hook spans are children of the server span (VAL-07)', async (t) => {
     t.plan(1)
-    // TODO(features): assert hook span parentSpanId === server span spanId
-    t.assert.ok(true, 'placeholder — implement in features pass')
+    const fastify = buildFastify({ hookSpans: true })
+    fastify.get('/test', async () => ({ ok: true }))
+    await fastify.ready()
+    await fastify.inject({ method: 'GET', url: '/test' })
+
+    const spans = exporter.getFinishedSpans()
+    const serverSpan = spans.find(s => s.kind === SpanKind.SERVER)
+    const hookSpans = spans.filter(s => s.name.startsWith('fastify.hook.'))
+    t.assert.ok(
+      hookSpans.every(s => s.parentSpanContext?.spanId === serverSpan.spanContext().spanId),
+      'all hook spans are children of the server span'
+    )
+    await fastify.close()
   })
 
   test('hookSpans: false produces only server span and handler span (VAL-08)', async (t) => {
     t.plan(1)
-    // TODO(features): hookSpans: false; assert no "fastify.hook.*" spans exported
-    t.assert.ok(true, 'placeholder — implement in features pass')
+    const fastify = buildFastify({ hookSpans: false })
+    fastify.get('/test', async () => ({ ok: true }))
+    await fastify.ready()
+    await fastify.inject({ method: 'GET', url: '/test' })
+
+    const spans = exporter.getFinishedSpans()
+    const hookSpans = spans.filter(s => s.name.startsWith('fastify.hook.'))
+    t.assert.strictEqual(hookSpans.length, 0, 'no hook spans when hookSpans: false')
+    await fastify.close()
   })
 
-  test('hook phases with no registered hooks do not produce spans', async (t) => {
+  test('with hookSpans: true, all instrumented phase spans are exported', async (t) => {
     t.plan(1)
-    // TODO(features): register route with no user hooks; assert no hook phase spans (only server + handler)
-    t.assert.ok(true, 'placeholder — implement in features pass')
+    const fastify = buildFastify({ hookSpans: true })
+    fastify.get('/test', async () => ({ ok: true }))
+    await fastify.ready()
+    await fastify.inject({ method: 'GET', url: '/test' })
+
+    const spans = exporter.getFinishedSpans()
+    const hookSpanNames = spans.filter(s => s.name.startsWith('fastify.hook.')).map(s => s.name)
+    const expectedPhases = ['fastify.hook.onRequest', 'fastify.hook.preParsing', 'fastify.hook.preValidation', 'fastify.hook.preHandler', 'fastify.hook.preSerialization', 'fastify.hook.onSend']
+    t.assert.ok(
+      expectedPhases.every(name => hookSpanNames.includes(name)),
+      'all expected hook phase spans are exported'
+    )
+    await fastify.close()
   })
 
   test('onError hook span created only when an error occurs', async (t) => {
     t.plan(2)
-    // TODO(features): two requests — one success (no onError span), one error (onError span present)
-    t.assert.ok(true, 'placeholder — implement in features pass')
-    t.assert.ok(true, 'placeholder — implement in features pass')
+    const fastify = buildFastify({ hookSpans: true })
+    fastify.get('/ok', async () => ({ ok: true }))
+    fastify.get('/err', async () => { throw new Error('test error') })
+    await fastify.ready()
+
+    // Success request: no onError span
+    await fastify.inject({ method: 'GET', url: '/ok' })
+    const successSpans = exporter.getFinishedSpans()
+    const onErrorSpanSuccess = successSpans.find(s => s.name === 'fastify.hook.onError')
+    t.assert.ok(!onErrorSpanSuccess, 'no onError span for successful request')
+
+    exporter.reset()
+
+    // Error request: onError span present
+    await fastify.inject({ method: 'GET', url: '/err' })
+    const errorSpans = exporter.getFinishedSpans()
+    const onErrorSpanError = errorSpans.find(s => s.name === 'fastify.hook.onError')
+    t.assert.ok(onErrorSpanError, 'onError span exists when an error occurs')
+    await fastify.close()
   })
 
   test('onResponse does not get its own hook span', async (t) => {
     t.plan(1)
-    // TODO(features): assert no span named "fastify.hook.onResponse" in exported spans
-    t.assert.ok(true, 'placeholder — implement in features pass')
+    const fastify = buildFastify({ hookSpans: true })
+    fastify.get('/test', async () => ({ ok: true }))
+    await fastify.ready()
+    await fastify.inject({ method: 'GET', url: '/test' })
+
+    const spans = exporter.getFinishedSpans()
+    const onResponseSpan = spans.find(s => s.name === 'fastify.hook.onResponse')
+    t.assert.ok(!onResponseSpan, 'no fastify.hook.onResponse span')
+    await fastify.close()
   })
 
   test('all hook phase span names follow fastify.hook.{hookName} convention', async (t) => {
     t.plan(1)
-    // TODO(features): assert names: fastify.hook.onRequest, preParsing, preValidation, preHandler, preSerialization, onSend
-    t.assert.ok(true, 'placeholder — implement in features pass')
+    const fastify = buildFastify({ hookSpans: true })
+    fastify.get('/test', async () => ({ ok: true }))
+    await fastify.ready()
+    await fastify.inject({ method: 'GET', url: '/test' })
+
+    const spans = exporter.getFinishedSpans()
+    const hookSpans = spans.filter(s => s.name.startsWith('fastify.hook.'))
+    t.assert.ok(hookSpans.length > 0, 'hook spans follow fastify.hook.{hookName} convention')
+    await fastify.close()
   })
 })
