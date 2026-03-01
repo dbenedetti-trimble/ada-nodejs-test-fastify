@@ -14,9 +14,7 @@
     "http-cache"
   ],
   "peerDependencies": {
-    "fastify": "^5.0.0"
-  },
-  "dependencies": {
+    "fastify": "^5.0.0",
     "fastify-plugin": "^5.0.0"
   }
 }
