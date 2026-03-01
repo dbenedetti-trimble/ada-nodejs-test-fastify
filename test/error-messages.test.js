@@ -35,7 +35,7 @@ test('VAL-02: already started error for route registration includes guidance', a
     t.assert.fail('should have thrown')
   } catch (e) {
     t.assert.strictEqual(e.code, 'FST_ERR_INSTANCE_ALREADY_LISTENING')
-    t.assert.ok(e.message.includes('Cannot add route!'), 'message should include route error')
+    t.assert.ok(e.message.includes('route'), 'message should include route method name')
     t.assert.ok(e.message.includes('plugin'), 'message should include guidance about plugin')
   }
 })

@@ -566,7 +566,7 @@ function fastify (serverOptions) {
 
   // wrapper that we expose to the user for hooks handling
   function addHook (name, fn) {
-    throwIfAlreadyStarted('Cannot call "addHook"!')
+    throwIfAlreadyStarted('addHook')
 
     if (fn == null) {
       throw new errorCodes.FST_ERR_HOOK_INVALID_HANDLER(name, fn)
@@ -614,7 +614,7 @@ function fastify (serverOptions) {
 
   // wrapper that we expose to the user for schemas handling
   function addSchema (schema) {
-    throwIfAlreadyStarted('Cannot call "addSchema"!')
+    throwIfAlreadyStarted('addSchema')
     this[kSchemaController].add(schema)
     this[kChildren].forEach(child => child.addSchema(schema))
     return this
@@ -690,33 +690,33 @@ function fastify (serverOptions) {
   }
 
   function setNotFoundHandler (opts, handler) {
-    throwIfAlreadyStarted('Cannot call "setNotFoundHandler"!')
+    throwIfAlreadyStarted('setNotFoundHandler')
 
     fourOhFour.setNotFoundHandler.call(this, opts, handler, avvio, router.routeHandler)
     return this
   }
 
   function setValidatorCompiler (validatorCompiler) {
-    throwIfAlreadyStarted('Cannot call "setValidatorCompiler"!')
+    throwIfAlreadyStarted('setValidatorCompiler')
     this[kSchemaController].setValidatorCompiler(validatorCompiler)
     return this
   }
 
   function setSchemaErrorFormatter (errorFormatter) {
-    throwIfAlreadyStarted('Cannot call "setSchemaErrorFormatter"!')
+    throwIfAlreadyStarted('setSchemaErrorFormatter')
     validateSchemaErrorFormatter(errorFormatter)
     this[kSchemaErrorFormatter] = errorFormatter.bind(this)
     return this
   }
 
   function setSerializerCompiler (serializerCompiler) {
-    throwIfAlreadyStarted('Cannot call "setSerializerCompiler"!')
+    throwIfAlreadyStarted('setSerializerCompiler')
     this[kSchemaController].setSerializerCompiler(serializerCompiler)
     return this
   }
 
   function setSchemaController (schemaControllerOpts) {
-    throwIfAlreadyStarted('Cannot call "setSchemaController"!')
+    throwIfAlreadyStarted('setSchemaController')
     const old = this[kSchemaController]
     const schemaController = SchemaController.buildSchemaController(
       old,
@@ -729,7 +729,7 @@ function fastify (serverOptions) {
   }
 
   function setReplySerializer (replySerializer) {
-    throwIfAlreadyStarted('Cannot call "setReplySerializer"!')
+    throwIfAlreadyStarted('setReplySerializer')
 
     this[kReplySerializerDefault] = replySerializer
     return this
@@ -737,7 +737,7 @@ function fastify (serverOptions) {
 
   // wrapper that we expose to the user for configure the custom error handler
   function setErrorHandler (func) {
-    throwIfAlreadyStarted('Cannot call "setErrorHandler"!')
+    throwIfAlreadyStarted('setErrorHandler')
 
     if (typeof func !== 'function') {
       throw new FST_ERR_ERROR_HANDLER_NOT_FN()
@@ -755,7 +755,7 @@ function fastify (serverOptions) {
   }
 
   function setChildLoggerFactory (factory) {
-    throwIfAlreadyStarted('Cannot call "setChildLoggerFactory"!')
+    throwIfAlreadyStarted('setChildLoggerFactory')
 
     this[kChildLoggerFactory] = factory
     return this
@@ -789,7 +789,7 @@ function fastify (serverOptions) {
   }
 
   function setGenReqId (func) {
-    throwIfAlreadyStarted('Cannot call "setGenReqId"!')
+    throwIfAlreadyStarted('setGenReqId')
 
     this[kGenReqId] = reqIdGenFactory(this[kOptions].requestIdHeader, func)
     return this
