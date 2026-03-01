@@ -29,6 +29,7 @@ const defaultInitOptions = {
   maxRequestsPerSocket: 0, // no limit
   requestTimeout: 0, // no limit
   bodyLimit: 1024 * 1024, // 1 MiB
+  routeTimeout: 0, // no per-route timeout by default
   caseSensitive: true,
   allowUnsafeRegex: false,
   disableRequestLogging: false,
@@ -73,6 +74,7 @@ const schema = {
     maxRequestsPerSocket: { type: 'integer', default: defaultInitOptions.maxRequestsPerSocket, nullable: true },
     requestTimeout: { type: 'integer', default: defaultInitOptions.requestTimeout },
     bodyLimit: { type: 'integer', default: defaultInitOptions.bodyLimit },
+    routeTimeout: { type: 'integer', default: defaultInitOptions.routeTimeout },
     caseSensitive: { type: 'boolean', default: defaultInitOptions.caseSensitive },
     allowUnsafeRegex: { type: 'boolean', default: defaultInitOptions.allowUnsafeRegex },
     http2: { type: 'boolean' },

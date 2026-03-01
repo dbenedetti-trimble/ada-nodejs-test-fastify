@@ -316,10 +316,11 @@ server.setChildLoggerFactory(server.childLoggerFactory)
 type InitialConfig = Readonly<{
   connectionTimeout?: number,
   keepAliveTimeout?: number,
+  forceCloseConnections?: boolean,
   bodyLimit?: number,
+  routeTimeout?: number,
   caseSensitive?: boolean,
   allowUnsafeRegex?: boolean,
-  forceCloseConnections?: boolean,
   http2?: boolean,
   https?: boolean | Readonly<{ allowHTTP1: boolean }>,
   ignoreTrailingSlash?: boolean,
