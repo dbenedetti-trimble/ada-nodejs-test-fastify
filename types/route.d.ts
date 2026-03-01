@@ -64,6 +64,7 @@ export interface RouteShorthandOptions<
   validatorCompiler?: FastifySchemaCompiler<NoInfer<SchemaCompiler>>;
   serializerCompiler?: FastifySerializerCompiler<NoInfer<SchemaCompiler>>;
   bodyLimit?: number;
+  requestTimeout?: number;
   logLevel?: LogLevel;
   config?: FastifyContextConfig & ContextConfig;
   constraints?: RouteConstraint,
