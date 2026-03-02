@@ -149,7 +149,7 @@ function fastify (serverOptions) {
     [kChildren]: [],
     [kServerBindings]: [],
     [kBodyLimit]: options.bodyLimit,
-    [kRouteTimeout]: options.routeTimeout || undefined,
+    [kRouteTimeout]: options.routeTimeout ?? undefined,
     [kRoutePrefix]: '',
     [kLogLevel]: '',
     [kLogSerializers]: null,
