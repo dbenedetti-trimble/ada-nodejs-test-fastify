@@ -2,7 +2,6 @@
 
 const { test } = require('node:test')
 const Fastify = require('..')
-const { getServerUrl } = require('./helper')
 
 test('IMP-1: addHook after start includes guidance', async t => {
   t.plan(3)
