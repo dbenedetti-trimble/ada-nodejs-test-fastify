@@ -181,7 +181,7 @@ test('app-level onTimeout hook fires on per-route timeout', async t => {
     return { ok: true }
   })
 
-  const res = await fastify.inject({ method: 'GET', url: '/' })
+  await fastify.inject({ method: 'GET', url: '/' })
   t.assert.strictEqual(hookCalled, true)
 })
 
