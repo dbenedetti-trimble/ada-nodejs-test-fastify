@@ -58,7 +58,7 @@ fastify.cache.stats()                    // { items, maxItems, hits, misses }
 ## Cache key format
 
 ```
-METHOD|/path?query|header-name:value,...
+METHOD|/path?query|header1:value1|header2:value2
 ```
 
 ## Notes
