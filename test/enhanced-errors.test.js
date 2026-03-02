@@ -57,6 +57,24 @@ test('IMP-1: setErrorHandler after start includes guidance', async t => {
   }
 })
 
+test('IMP-1: addSchema after start includes guidance', async t => {
+  t.plan(3)
+  const fastify = Fastify()
+
+  fastify.get('/', async () => 'ok')
+  await fastify.listen({ port: 0 })
+  t.after(() => { fastify.close() })
+
+  try {
+    fastify.addSchema({ $id: 'test', type: 'object' })
+    t.assert.fail('should have thrown')
+  } catch (e) {
+    t.assert.strictEqual(e.code, 'FST_ERR_INSTANCE_ALREADY_LISTENING')
+    t.assert.ok(e.message.includes('addSchema'))
+    t.assert.ok(e.message.includes('inside a plugin register function'))
+  }
+})
+
 test('IMP-2: hook name in async arity error - onRequest', t => {
   const fastify = Fastify()
 

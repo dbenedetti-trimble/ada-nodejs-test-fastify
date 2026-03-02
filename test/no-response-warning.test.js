@@ -2,6 +2,7 @@
 
 const { test } = require('node:test')
 const Fastify = require('..')
+const { FSTWRN005 } = require('../lib/warnings')
 
 test('FSTWRN005 - warning fires when async handler returns undefined without reply.send()', async t => {
   t.plan(3)
@@ -20,6 +21,7 @@ test('FSTWRN005 - warning fires when async handler returns undefined without rep
   process.on('warning', onWarning)
   t.after(() => {
     process.removeListener('warning', onWarning)
+    FSTWRN005.emitted = false
     fastify.close()
   })
 
@@ -50,6 +52,7 @@ test('FSTWRN005 - no warning when handler returns a value', async t => {
   process.on('warning', onWarning)
   t.after(() => {
     process.removeListener('warning', onWarning)
+    FSTWRN005.emitted = false
     fastify.close()
   })
 
@@ -79,6 +82,7 @@ test('FSTWRN005 - no warning when handler calls reply.send() explicitly', async 
   process.on('warning', onWarning)
   t.after(() => {
     process.removeListener('warning', onWarning)
+    FSTWRN005.emitted = false
     fastify.close()
   })
 
@@ -109,6 +113,7 @@ test('FSTWRN005 - no warning when handler returns reply object', async t => {
   process.on('warning', onWarning)
   t.after(() => {
     process.removeListener('warning', onWarning)
+    FSTWRN005.emitted = false
     fastify.close()
   })
 
