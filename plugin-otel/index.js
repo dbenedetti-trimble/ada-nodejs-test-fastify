@@ -13,9 +13,7 @@ const HOOK_PHASES = [
   'preParsing',
   'preValidation',
   'preHandler',
-  'preSerialization',
-  'onSend',
-  'onError'
+  'preSerialization'
 ]
 
 async function otelPlugin (fastify, opts) {
@@ -79,6 +77,12 @@ async function otelPlugin (fastify, opts) {
     if (serverSpan && !handlerSpan) {
       serverSpan.recordException(error)
     }
+    if (hookSpans && serverSpan) {
+      const parentCtx = request._otelContext
+      const span = tracer.startSpan('fastify.hook.onError', {}, parentCtx)
+      span.recordException(error)
+      span.end()
+    }
     done()
   })
 
@@ -103,17 +107,7 @@ async function otelPlugin (fastify, opts) {
 // reflect phase participation rather than total phase duration.
 function registerHookSpans (fastify, tracer, phases) {
   for (const hookName of phases) {
-    if (hookName === 'onError') {
-      fastify.addHook('onError', function hookSpanOnError (request, reply, error, done) {
-        const serverSpan = request[kOtelSpan]
-        if (!serverSpan) return done()
-        const parentCtx = request._otelContext
-        const span = tracer.startSpan('fastify.hook.onError', {}, parentCtx)
-        span.recordException(error)
-        span.end()
-        done()
-      })
-    } else if (hookName === 'preParsing') {
+    if (hookName === 'preParsing') {
       fastify.addHook('preParsing', function hookSpanPreParsing (request, reply, payload, done) {
         const serverSpan = request[kOtelSpan]
         if (!serverSpan) return done(null, payload)
@@ -128,15 +122,6 @@ function registerHookSpans (fastify, tracer, phases) {
         if (!serverSpan) return done(null, payload)
         const parentCtx = request._otelContext
         const span = tracer.startSpan('fastify.hook.preSerialization', {}, parentCtx)
-        span.end()
-        done(null, payload)
-      })
-    } else if (hookName === 'onSend') {
-      fastify.addHook('onSend', function hookSpanOnSend (request, reply, payload, done) {
-        const serverSpan = request[kOtelSpan]
-        if (!serverSpan) return done(null, payload)
-        const parentCtx = request._otelContext
-        const span = tracer.startSpan('fastify.hook.onSend', {}, parentCtx)
         span.end()
         done(null, payload)
       })

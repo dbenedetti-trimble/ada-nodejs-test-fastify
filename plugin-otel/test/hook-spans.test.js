@@ -26,7 +26,6 @@ test('hook spans: created when hookSpans is true', async t => {
   const hookNames = hookSpans.map(s => s.name)
   t.assert.ok(hookNames.includes('fastify.hook.onRequest'), 'onRequest hook span created')
   t.assert.ok(hookNames.includes('fastify.hook.preHandler'), 'preHandler hook span created')
-  t.assert.ok(hookNames.includes('fastify.hook.onSend'), 'onSend hook span created')
 })
 
 test('hook spans: are children of server span', async t => {
@@ -47,7 +46,7 @@ test('hook spans: are children of server span', async t => {
 
   for (const hookSpan of hookSpans) {
     t.assert.strictEqual(
-      hookSpan.parentSpanContext.spanId,
+      hookSpan.parentSpanId,
       serverSpan.spanContext().spanId,
       `${hookSpan.name} is child of server span`
     )
