@@ -27,7 +27,7 @@ async function cachePlugin (fastify, opts) {
       varyPart = varyHeaders.map(h => {
         const val = request.headers[h] || ''
         return h + ':' + val
-      }).join(',')
+      }).join('|')
     }
     return method + '|' + url + '|' + varyPart
   }
@@ -77,6 +77,7 @@ async function cachePlugin (fastify, opts) {
         request._cacheHit = true
         reply
           .code(304)
+          .header('X-Cache', 'HIT')
           .header('ETag', entry.etag)
           .send('')
         return reply
