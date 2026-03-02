@@ -775,7 +775,7 @@ test('FST_ERR_INSTANCE_ALREADY_LISTENING', t => {
   const error = new errors.FST_ERR_INSTANCE_ALREADY_LISTENING()
   t.assert.strictEqual(error.name, 'FastifyError')
   t.assert.strictEqual(error.code, 'FST_ERR_INSTANCE_ALREADY_LISTENING')
-  t.assert.strictEqual(error.message, 'Fastify instance is already listening. %s Move this call inside a plugin register function so it executes before the server starts.')
+  t.assert.strictEqual(error.message, 'Cannot call "%s" when fastify instance is already started! Move this call inside a plugin register function so it executes before the server starts.')
   t.assert.strictEqual(error.statusCode, 500)
   t.assert.ok(error instanceof Error)
 })
