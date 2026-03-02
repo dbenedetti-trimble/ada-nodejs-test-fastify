@@ -1,3 +1,4 @@
+// This file is generated from lib/route.ts. Do not edit directly.
 import FindMyWay = require('find-my-way')
 import Context = require('./context')
 import handleRequest = require('./handle-request')
