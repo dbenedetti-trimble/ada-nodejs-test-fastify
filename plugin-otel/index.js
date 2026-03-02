@@ -98,6 +98,9 @@ async function otelPlugin (fastify, opts) {
   }
 }
 
+// Hook spans mark that a lifecycle phase executed. Due to Fastify's hook API,
+// each plugin hook runs alongside other hooks in the same phase, so these spans
+// reflect phase participation rather than total phase duration.
 function registerHookSpans (fastify, tracer, phases) {
   for (const hookName of phases) {
     if (hookName === 'onError') {

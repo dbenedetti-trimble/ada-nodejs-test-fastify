@@ -14,6 +14,11 @@ function buildRequestAttributes (request) {
     'network.protocol.version': request.raw.httpVersion
   }
 
+  const port = request.raw.socket?.localPort
+  if (port != null) {
+    attrs['server.port'] = port
+  }
+
   if (query) {
     attrs['url.query'] = query
   }

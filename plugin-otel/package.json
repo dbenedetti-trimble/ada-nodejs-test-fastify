@@ -5,6 +5,9 @@
   "main": "index.js",
   "types": "types/index.d.ts",
   "license": "MIT",
+  "dependencies": {
+    "fastify-plugin": "^5.0.0"
+  },
   "peerDependencies": {
     "@opentelemetry/api": ">=1.4.0"
   },
