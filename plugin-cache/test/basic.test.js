@@ -1,6 +1,7 @@
 'use strict'
 
 const { test } = require('node:test')
+const FakeTimers = require('@sinonjs/fake-timers')
 const Fastify = require('../..')
 const cachePlugin = require('..')
 
@@ -19,14 +20,34 @@ test('VAL-01: plugin registers with defaults', async t => {
 })
 
 test('VAL-02: plugin registers with custom options', async t => {
-  t.plan(2)
-  const fastify = Fastify()
-  fastify.register(cachePlugin, { maxItems: 50, ttl: 5000 })
-  await fastify.ready()
+  t.plan(5)
+  const clock = FakeTimers.install({ shouldClearNativeTimers: true })
 
-  const stats = fastify.cache.stats()
-  t.assert.strictEqual(stats.maxItems, 50)
-  t.assert.strictEqual(stats.items, 0)
+  try {
+    const fastify = Fastify()
+    fastify.register(cachePlugin, { maxItems: 50, ttl: 5000 })
+
+    fastify.get('/val02', { config: { cache: true } }, async () => ({ ok: true }))
+
+    await fastify.ready()
+
+    const stats = fastify.cache.stats()
+    t.assert.strictEqual(stats.maxItems, 50)
+    t.assert.strictEqual(stats.items, 0)
+
+    await fastify.inject({ method: 'GET', url: '/val02' })
+
+    clock.tick(4000)
+    const resHit = await fastify.inject({ method: 'GET', url: '/val02' })
+    t.assert.strictEqual(resHit.headers['x-cache'], 'HIT')
+
+    clock.tick(2000)
+    const resMiss = await fastify.inject({ method: 'GET', url: '/val02' })
+    t.assert.strictEqual(resMiss.headers['x-cache'], 'MISS')
+    t.assert.strictEqual(fastify.cache.stats().maxItems, 50)
+  } finally {
+    clock.uninstall()
+  }
 })
 
 test('plugin throws if cache decorator already exists', async t => {
@@ -44,7 +65,7 @@ test('plugin throws if cache decorator already exists', async t => {
 })
 
 test('VAL-03: uncached route is unaffected', async t => {
-  t.plan(3)
+  t.plan(4)
   const fastify = Fastify()
   fastify.register(cachePlugin)
 
@@ -60,6 +81,7 @@ test('VAL-03: uncached route is unaffected', async t => {
   t.assert.strictEqual(res.statusCode, 200)
   t.assert.strictEqual(res.headers['x-cache'], undefined)
   t.assert.strictEqual(handlerCalls, 1)
+  t.assert.strictEqual(fastify.cache.stats().items, 0)
 })
 
 test('VAL-04: basic cache miss then hit', async t => {
