@@ -75,6 +75,23 @@ test('IMP-1: addSchema after start includes guidance', async t => {
   }
 })
 
+test('IMP-1: register after start throws error', async t => {
+  t.plan(2)
+  const fastify = Fastify()
+
+  fastify.get('/', async () => 'ok')
+  await fastify.listen({ port: 0 })
+  t.after(() => { fastify.close() })
+
+  try {
+    fastify.register(async () => {})
+    t.assert.fail('should have thrown')
+  } catch (e) {
+    t.assert.strictEqual(e.code, 'AVV_ERR_ROOT_PLG_BOOTED')
+    t.assert.ok(e.message.includes('already booted'))
+  }
+})
+
 test('IMP-2: hook name in async arity error - onRequest', t => {
   const fastify = Fastify()
 
