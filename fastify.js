@@ -32,7 +32,8 @@ const {
   kKeepAliveConnections,
   kChildLoggerFactory,
   kGenReqId,
-  kErrorHandlerAlreadySet
+  kErrorHandlerAlreadySet,
+  kRouteTimeout
 } = require('./lib/symbols.js')
 
 const { createServer } = require('./lib/server')
@@ -73,7 +74,8 @@ const {
   FST_ERR_SCHEMA_ERROR_FORMATTER_NOT_FN,
   FST_ERR_ERROR_HANDLER_NOT_FN,
   FST_ERR_ERROR_HANDLER_ALREADY_SET,
-  FST_ERR_ROUTE_METHOD_INVALID
+  FST_ERR_ROUTE_METHOD_INVALID,
+  FST_ERR_ROUTE_REQUEST_TIMEOUT_OPTION_NOT_INT
 } = errorCodes
 
 const { buildErrorHandler } = require('./lib/error-handler.js')
@@ -147,6 +149,7 @@ function fastify (serverOptions) {
     [kChildren]: [],
     [kServerBindings]: [],
     [kBodyLimit]: options.bodyLimit,
+    [kRouteTimeout]: options.routeTimeout ?? undefined,
     [kRoutePrefix]: '',
     [kLogLevel]: '',
     [kLogSerializers]: null,
@@ -869,6 +872,11 @@ function processOptions (options, defaultRoute, onBadUrl) {
   options.keepAliveTimeout = options.keepAliveTimeout || defaultInitOptions.keepAliveTimeout
   options.maxRequestsPerSocket = options.maxRequestsPerSocket || defaultInitOptions.maxRequestsPerSocket
   options.requestTimeout = options.requestTimeout || defaultInitOptions.requestTimeout
+  if (options.routeTimeout !== undefined) {
+    if (!Number.isInteger(options.routeTimeout) || options.routeTimeout < 0) {
+      throw new FST_ERR_ROUTE_REQUEST_TIMEOUT_OPTION_NOT_INT(options.routeTimeout)
+    }
+  }
   options.logger = logger
   options.requestIdHeader = requestIdHeader
   options.requestIdLogLabel = requestIdLogLabel

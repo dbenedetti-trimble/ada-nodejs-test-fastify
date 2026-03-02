@@ -588,6 +588,7 @@ export interface FastifyInstance<
     connectionTimeout?: number,
     keepAliveTimeout?: number,
     forceCloseConnections?: boolean,
+    routeTimeout?: number,
     bodyLimit?: number,
     caseSensitive?: boolean,
     allowUnsafeRegex?: boolean,

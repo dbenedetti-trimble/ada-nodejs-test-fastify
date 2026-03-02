@@ -7,7 +7,8 @@ module.exports = [
       'lib/config-validator.js',
       'lib/error-serializer.js',
       'test/same-shape.test.js',
-      'test/types/import.js'
+      'test/types/import.js',
+      '.ada/**'
     ],
     ts: true
   }),
