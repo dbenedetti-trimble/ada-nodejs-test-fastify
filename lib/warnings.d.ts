@@ -1,1 +1,1 @@
-export function FSTDEP022(...args: any[]): void
+export function FSTDEP022 (...args: any[]): void

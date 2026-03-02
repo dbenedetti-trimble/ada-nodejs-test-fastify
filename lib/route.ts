@@ -60,7 +60,7 @@ const routerKeys: string[] = [
   'useSemicolonDelimiter'
 ]
 
-function buildRouting(options: any): any {
+function buildRouting (options: any): any {
   const router: any = FindMyWay(options)
 
   let avvio: any
@@ -80,7 +80,7 @@ function buildRouting(options: any): any {
   let closing = false
 
   return {
-    setup(options: any, fastifyArgs: any): void {
+    setup (options: any, fastifyArgs: any): void {
       avvio = fastifyArgs.avvio
       fourOhFour = fastifyArgs.fourOhFour
       logger = options.logger
@@ -112,20 +112,20 @@ function buildRouting(options: any): any {
     findRoute
   }
 
-  function addConstraintStrategy(this: any, strategy: any): any {
+  function addConstraintStrategy (this: any, strategy: any): any {
     throwIfAlreadyStarted('Cannot add constraint strategy!')
     return router.addConstraintStrategy(strategy)
   }
 
-  function hasConstraintStrategy(this: any, strategyName: string): boolean {
+  function hasConstraintStrategy (this: any, strategyName: string): boolean {
     return router.hasConstraintStrategy(strategyName)
   }
 
-  function isAsyncConstraint(this: any): boolean {
+  function isAsyncConstraint (this: any): boolean {
     return router.constrainer.asyncStrategiesInUse.size > 0
   }
 
-  function prepareRoute(this: any, { method, url, options, handler, isFastify }: any): any {
+  function prepareRoute (this: any, { method, url, options, handler, isFastify }: any): any {
     if (typeof url !== 'string') {
       throw new FST_ERR_INVALID_URL(typeof url)
     }
@@ -155,7 +155,7 @@ function buildRouting(options: any): any {
     return route.call(this, { options, isFastify })
   }
 
-  function hasRoute(this: any, { options }: any): boolean {
+  function hasRoute (this: any, { options }: any): boolean {
     const normalizedMethod: string = options.method?.toUpperCase() ?? ''
     return router.hasRoute(
       normalizedMethod,
@@ -164,7 +164,7 @@ function buildRouting(options: any): any {
     )
   }
 
-  function findRoute(this: any, options: any): any {
+  function findRoute (this: any, options: any): any {
     const foundRoute = router.find(
       options.method,
       options.url || '',
@@ -181,7 +181,7 @@ function buildRouting(options: any): any {
     }
   }
 
-  function route(this: any, { options, isFastify }: any): any {
+  function route (this: any, { options, isFastify }: any): any {
     throwIfAlreadyStarted('Cannot add route!')
 
     const opts: any = { ...options }
@@ -246,7 +246,7 @@ function buildRouting(options: any): any {
 
     return this
 
-    function addNewRoute(this: any, { path, prefixing = false, isFastify = false }: any): void {
+    function addNewRoute (this: any, { path, prefixing = false, isFastify = false }: any): void {
       const url: string = prefix + path
 
       opts.url = url
@@ -413,7 +413,7 @@ function buildRouting(options: any): any {
     }
   }
 
-  function routeHandler(this: any, req: any, res: any, params: any, context: any, query: any): void {
+  function routeHandler (this: any, req: any, res: any, params: any, context: any, query: any): void {
     const id: any = getGenReqId(context.server, req)
 
     const loggerOpts: any = {
@@ -507,13 +507,13 @@ function buildRouting(options: any): any {
   }
 }
 
-function handleOnRequestAbortHooksErrors(reply: any, err: any): void {
+function handleOnRequestAbortHooksErrors (reply: any, err: any): void {
   if (err) {
     reply.log.error({ err }, 'onRequestAborted hook failed')
   }
 }
 
-function handleTimeout(this: any): void {
+function handleTimeout (this: any): void {
   const { context, request, reply } = this._meta
   onTimeoutHookRunner(
     context.onTimeout,
@@ -523,7 +523,7 @@ function handleTimeout(this: any): void {
   )
 }
 
-function normalizeAndValidateMethod(this: any, method: any): string {
+function normalizeAndValidateMethod (this: any, method: any): string {
   if (typeof method !== 'string') {
     throw new FST_ERR_ROUTE_METHOD_INVALID()
   }
@@ -536,20 +536,20 @@ function normalizeAndValidateMethod(this: any, method: any): string {
   return method
 }
 
-function validateSchemaBodyOption(this: any, method: string, path: string, schema: any): void {
+function validateSchemaBodyOption (this: any, method: string, path: string, schema: any): void {
   if ((this as any)[kSupportedHTTPMethods].bodyless.has(method) && schema?.body) {
     throw new FST_ERR_ROUTE_BODY_VALIDATION_SCHEMA_NOT_SUPPORTED(method, path)
   }
 }
 
-function validateBodyLimitOption(bodyLimit: any): void {
+function validateBodyLimitOption (bodyLimit: any): void {
   if (bodyLimit === undefined) return
   if (!Number.isInteger(bodyLimit) || bodyLimit <= 0) {
     throw new FST_ERR_ROUTE_BODY_LIMIT_OPTION_NOT_INT(bodyLimit)
   }
 }
 
-function runPreParsing(err: any, request: any, reply: any): void {
+function runPreParsing (err: any, request: any, reply: any): void {
   if (reply.sent === true) return
   if (err != null) {
     (reply as any)[kReplyIsError] = true
@@ -566,7 +566,7 @@ function runPreParsing(err: any, request: any, reply: any): void {
   }
 }
 
-function buildRouterOptions(options: any, defaultOptions: any): Record<string, any> {
+function buildRouterOptions (options: any, defaultOptions: any): Record<string, any> {
   const routerOptions: Record<string, any> = options.routerOptions == null
     ? Object.create(null)
     : Object.assign(Object.create(null), options.routerOptions)
@@ -586,10 +586,10 @@ function buildRouterOptions(options: any, defaultOptions: any): Record<string, a
   return routerOptions
 }
 
-function removeTrackedSocket(this: { keepAliveConnections: Set<any>; socket: any }): void {
+function removeTrackedSocket (this: { keepAliveConnections: Set<any>; socket: any }): void {
   this.keepAliveConnections.delete(this.socket)
 }
 
-function noop(): void { }
+function noop (): void { }
 
 module.exports = { buildRouting, validateBodyLimitOption, buildRouterOptions }

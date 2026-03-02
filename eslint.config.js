@@ -8,7 +8,6 @@ module.exports = [
       'lib/config-validator.js',
       'lib/error-serializer.js',
       'lib/route.js',
-      'lib/**/*.ts',
       'test/same-shape.test.js',
       'test/types/import.js'
     ],

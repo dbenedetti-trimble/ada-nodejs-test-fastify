@@ -1,4 +1,4 @@
-declare function Context(opts: {
+declare function Context (opts: {
   schema: any
   handler: Function
   config: any
