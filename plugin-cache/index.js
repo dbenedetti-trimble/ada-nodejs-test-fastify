@@ -167,9 +167,9 @@ async function cachePlugin (fastify, opts) {
 
     let ttl = getRouteTtl(routeCacheConfig, defaultTtl)
     if (resCc.sMaxAge !== null) {
-      ttl = resCc.sMaxAge * 1000
+      ttl = resCc.sMaxAge
     } else if (resCc.maxAge !== null) {
-      ttl = resCc.maxAge * 1000
+      ttl = resCc.maxAge
     }
 
     const body = payload || ''

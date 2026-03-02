@@ -5,7 +5,7 @@
   "main": "index.js",
   "types": "types/index.d.ts",
   "license": "MIT",
-  "dependencies": {
+  "peerDependencies": {
     "fastify-plugin": "^5.0.0"
   }
 }

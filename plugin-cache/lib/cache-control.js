@@ -22,10 +22,10 @@ function parseCacheControl (header) {
       result.private = true
     } else if (trimmed.startsWith('s-maxage=')) {
       const val = parseInt(trimmed.slice(9), 10)
-      if (!isNaN(val)) result.sMaxAge = val
+      if (!isNaN(val)) result.sMaxAge = val * 1000
     } else if (trimmed.startsWith('max-age=')) {
       const val = parseInt(trimmed.slice(8), 10)
-      if (!isNaN(val)) result.maxAge = val
+      if (!isNaN(val)) result.maxAge = val * 1000
     }
   }
 
