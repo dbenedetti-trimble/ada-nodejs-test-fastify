@@ -467,6 +467,16 @@ expectType<FastifyInstance>(fastify().route({
   handler: routeHandlerWithReturnValue
 }))
 
+// requestTimeout route option
+expectType<FastifyInstance>(fastify().route({
+  url: '/',
+  method: 'GET',
+  requestTimeout: 5000,
+  handler: routeHandler
+}))
+
+expectType<FastifyInstance>(fastify().get('/', { requestTimeout: 2000 }, routeHandler))
+
 expectType<boolean>(fastify().hasRoute({
   url: '/',
   method: 'GET'
