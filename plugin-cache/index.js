@@ -12,7 +12,7 @@ function deriveCacheKey (request, varyHeaders) {
   if (varyHeaders.length > 0) {
     varyPart = varyHeaders
       .map(h => h + ':' + (request.headers[h] || ''))
-      .join(',')
+      .join('|')
   }
   return method + '|' + url + '|' + varyPart
 }
@@ -96,17 +96,18 @@ async function cachePlugin (fastify, opts) {
 
     const varyHeaders = getRouteVaryHeaders(routeCacheConfig, globalVary)
     const key = deriveCacheKey(request, varyHeaders)
-    const entry = cache.get(key)
 
-    if (!entry) {
+    const peeked = cache.peek(key)
+    if (peeked && peeked.noCache) {
+      cache.misses++
       reply.header('x-cache', 'MISS')
       return done()
     }
 
-    if (entry.noCache) {
+    const entry = cache.get(key)
+
+    if (!entry) {
       reply.header('x-cache', 'MISS')
-      cache.hits--
-      cache.misses++
       return done()
     }
 

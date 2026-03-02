@@ -38,6 +38,16 @@ class LRUCache {
     this.map.set(key, value)
   }
 
+  peek (key) {
+    const entry = this.map.get(key)
+    if (!entry) return undefined
+    if (entry.expiry <= Date.now()) {
+      this.map.delete(key)
+      return undefined
+    }
+    return entry
+  }
+
   purge (key) {
     return this.map.delete(key)
   }

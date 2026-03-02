@@ -5,7 +5,7 @@ const Fastify = require('../..')
 const cachePlugin = require('..')
 
 test('VAL-01: plugin registers with defaults', async t => {
-  t.plan(4)
+  t.plan(5)
   const fastify = Fastify()
   fastify.register(cachePlugin)
   await fastify.ready()
@@ -15,6 +15,7 @@ test('VAL-01: plugin registers with defaults', async t => {
   t.assert.strictEqual(stats.items, 0)
   t.assert.strictEqual(stats.maxItems, 1000)
   t.assert.strictEqual(stats.hits, 0)
+  t.assert.strictEqual(stats.misses, 0)
 })
 
 test('VAL-02: plugin registers with custom options', async t => {
