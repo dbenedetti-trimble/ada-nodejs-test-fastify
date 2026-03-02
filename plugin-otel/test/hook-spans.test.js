@@ -46,7 +46,7 @@ test('hook spans: are children of server span', async t => {
 
   for (const hookSpan of hookSpans) {
     t.assert.strictEqual(
-      hookSpan.parentSpanId,
+      hookSpan.parentSpanContext?.spanId,
       serverSpan.spanContext().spanId,
       `${hookSpan.name} is child of server span`
     )

@@ -34,7 +34,7 @@ test('propagation: incoming traceparent creates child span', async t => {
     'trace ID from traceparent is preserved'
   )
   t.assert.strictEqual(
-    serverSpan.parentSpanId,
+    serverSpan.parentSpanContext?.spanId,
     '00f067aa0ba902b7',
     'parent span ID from traceparent is preserved'
   )
@@ -57,7 +57,7 @@ test('propagation: no traceparent starts new trace', async t => {
   const serverSpan = spans.find(s => s.kind === SpanKind.SERVER)
 
   t.assert.ok(serverSpan.spanContext().traceId, 'trace ID exists')
-  t.assert.ok(!serverSpan.parentSpanId, 'no parent span ID')
+  t.assert.ok(!serverSpan.parentSpanContext || !serverSpan.parentSpanContext.spanId, 'no parent span ID')
 })
 
 test('propagation: child spans in handler are parented to server span', async t => {
@@ -88,7 +88,7 @@ test('propagation: child spans in handler are parented to server span', async t 
     'custom span is in same trace'
   )
   t.assert.strictEqual(
-    customSpan.parentSpanId,
+    customSpan.parentSpanContext?.spanId,
     serverSpan.spanContext().spanId,
     'custom span is child of server span'
   )

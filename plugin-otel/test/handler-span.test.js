@@ -25,7 +25,7 @@ test('handler span: created as child of server span', async t => {
   t.assert.ok(serverSpan, 'server span exists')
   t.assert.ok(handlerSpan, 'handler span exists')
   t.assert.strictEqual(
-    handlerSpan.parentSpanId,
+    handlerSpan.parentSpanContext?.spanId,
     serverSpan.spanContext().spanId,
     'handler span is child of server span'
   )
