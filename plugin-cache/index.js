@@ -44,12 +44,16 @@ async function cachePlugin (fastify, opts) {
         throw new TypeError('purgeByPrefix urlPrefix must be a string')
       }
       let count = 0
-      for (const key of [...cache.keys()]) {
+      const keysToDelete = []
+      for (const key of cache.keys()) {
         const urlPart = key.split('|')[1]
         if (urlPart && urlPart.startsWith(urlPrefix)) {
-          cache.delete(key)
-          count++
+          keysToDelete.push(key)
         }
+      }
+      for (const key of keysToDelete) {
+        cache.delete(key)
+        count++
       }
       return count
     },
@@ -84,7 +88,24 @@ async function cachePlugin (fastify, opts) {
     request._cacheKey = key
 
     const entry = cache.get(key)
-    if (!entry || entry.noCache) {
+    if (!entry) {
+      misses++
+      reply.header('x-cache', 'MISS')
+      return
+    }
+
+    const ifNoneMatch = request.headers['if-none-match']
+
+    if (entry.noCache) {
+      if (ifNoneMatch && etagMatches(ifNoneMatch, entry.etag)) {
+        hits++
+        reply
+          .code(304)
+          .header('etag', entry.etag)
+          .header('x-cache', 'HIT')
+          .send('')
+        return reply
+      }
       misses++
       reply.header('x-cache', 'MISS')
       return
@@ -92,7 +113,6 @@ async function cachePlugin (fastify, opts) {
 
     hits++
 
-    const ifNoneMatch = request.headers['if-none-match']
     if (ifNoneMatch) {
       if (etagMatches(ifNoneMatch, entry.etag)) {
         reply
@@ -149,7 +169,7 @@ async function cachePlugin (fastify, opts) {
       statusCode,
       headers: { 'content-type': reply.getHeader('content-type') },
       etag,
-      expiry: noCache ? 0 : Date.now() + ttl,
+      expiry: Date.now() + ttl,
       noCache
     })
 
