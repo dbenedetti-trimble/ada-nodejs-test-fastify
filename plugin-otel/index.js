@@ -41,7 +41,7 @@ async function otelPlugin (fastify, opts) {
 
   if (opts.exposeApi !== false) {
     fastify.decorate('otel', { tracer })
-    fastify.decorateRequest('otelSpan', null)
+    fastify.decorateRequest('otelSpan', undefined)
   }
 
   fastify.addHook('onRequest', function onRequestOtel (request, reply, done) {
@@ -152,6 +152,11 @@ function endPreviousHookSpan (request) {
   }
 }
 
+// Hook spans approximate phase timing: each span starts when the plugin's hook fires
+// in a given phase and ends when the next phase begins. This covers the execution of
+// user hooks registered after this plugin, the phase's internal Fastify work, and
+// any gap before the next phase. Exact per-hook measurement is not possible without
+// modifying Fastify core.
 function registerHookSpan (fastify, phase, tracer, otel) {
   fastify.addHook(phase, function hookSpanWrap (request, reply, doneOrPayload, maybeDone) {
     const serverSpan = request[kOtelSpan]

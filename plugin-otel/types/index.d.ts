@@ -22,6 +22,6 @@ declare module 'fastify' {
     otel: OtelDecorator
   }
   interface FastifyRequest {
-    otelSpan: Span | null | undefined
+    otelSpan: Span | undefined
   }
 }

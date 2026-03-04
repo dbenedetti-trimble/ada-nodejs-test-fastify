@@ -30,7 +30,7 @@ test('VAL-16: ignoreRoutes excludes routes from instrumentation', async t => {
   t.assert.strictEqual(serverSpans[0].name, 'GET /api/data', 'span is for /api/data')
 })
 
-test('request.otelSpan is null (decorator default) for ignored routes when OTel is active', async t => {
+test('request.otelSpan is undefined for ignored routes when OTel is active', async t => {
   const { exporter, provider } = setupOtel()
   t.after(() => teardownOtel(provider))
 
@@ -49,7 +49,7 @@ test('request.otelSpan is null (decorator default) for ignored routes when OTel 
   })
 
   await fastify.inject({ method: 'GET', url: '/health' })
-  t.assert.strictEqual(otelSpanValue, null, 'request.otelSpan is null (decorator default) for ignored route')
+  t.assert.strictEqual(otelSpanValue, undefined, 'request.otelSpan is undefined for ignored route')
 })
 
 test('multiple ignored routes', async t => {
