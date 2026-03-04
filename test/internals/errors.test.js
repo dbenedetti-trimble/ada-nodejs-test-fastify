@@ -292,10 +292,10 @@ test('FST_ERR_HOOK_INVALID_HANDLER', t => {
 
 test('FST_ERR_HOOK_INVALID_ASYNC_HANDLER', t => {
   t.plan(5)
-  const error = new errors.FST_ERR_HOOK_INVALID_ASYNC_HANDLER()
+  const error = new errors.FST_ERR_HOOK_INVALID_ASYNC_HANDLER('onRequest')
   t.assert.strictEqual(error.name, 'FastifyError')
   t.assert.strictEqual(error.code, 'FST_ERR_HOOK_INVALID_ASYNC_HANDLER')
-  t.assert.strictEqual(error.message, "Async function has too many arguments. Async hooks should not use the 'done' argument.")
+  t.assert.strictEqual(error.message, 'Async function for "onRequest" hook has too many arguments. Async hooks should not use the \'done\' argument.')
   t.assert.strictEqual(error.statusCode, 500)
   t.assert.ok(error instanceof TypeError)
 })
@@ -772,10 +772,10 @@ test('FST_ERR_REOPENED_SERVER', t => {
 
 test('FST_ERR_INSTANCE_ALREADY_LISTENING', t => {
   t.plan(5)
-  const error = new errors.FST_ERR_INSTANCE_ALREADY_LISTENING()
+  const error = new errors.FST_ERR_INSTANCE_ALREADY_LISTENING('addHook')
   t.assert.strictEqual(error.name, 'FastifyError')
   t.assert.strictEqual(error.code, 'FST_ERR_INSTANCE_ALREADY_LISTENING')
-  t.assert.strictEqual(error.message, 'Fastify instance is already listening. %s')
+  t.assert.strictEqual(error.message, 'Cannot call "addHook" when fastify instance is already started! Move this call inside a plugin register function so it executes before the server starts.')
   t.assert.strictEqual(error.statusCode, 500)
   t.assert.ok(error instanceof Error)
 })
