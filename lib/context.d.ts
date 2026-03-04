@@ -1,4 +1,4 @@
-declare function Context(opts: {
+interface ContextOpts {
   schema: any;
   handler: Function;
   config: any;
@@ -16,6 +16,28 @@ declare function Context(opts: {
   prefixTrailingSlash: string;
   server: any;
   isFastify: boolean;
-}): any;
+}
 
+interface Context {
+  schema: any;
+  handler: Function;
+  config: any;
+  errorHandler: any;
+  _parserOptions: any;
+  logLevel: any;
+  logSerializers: any;
+  attachValidation: any;
+  schemaErrorFormatter: any;
+  server: any;
+  Request: any;
+  Reply: any;
+  [key: string]: any;
+}
+
+interface ContextConstructor {
+  new (opts: ContextOpts): Context;
+  (opts: ContextOpts): any;
+}
+
+declare const Context: ContextConstructor;
 export = Context;
