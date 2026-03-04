@@ -352,6 +352,59 @@ test('no timer created when neither routeTimeout nor requestTimeout is set', asy
   t.assert.strictEqual(res.statusCode, 200)
 })
 
+// VAL-14: Streaming response - timeout logs but no 408
+test('streaming response: timeout aborts signal but does not send 408', async (t) => {
+  t.plan(3)
+  const fastify = Fastify()
+  let capturedSignal
+
+  fastify.get('/stream', { requestTimeout: 50 }, async (request, reply) => {
+    capturedSignal = request.signal
+    reply.raw.writeHead(200, { 'Content-Type': 'text/plain' })
+    reply.raw.write('partial')
+    await sleep(200)
+    reply.raw.end('done')
+    return reply
+  })
+
+  await fastify.listen({ port: 0 })
+  t.after(() => fastify.close())
+  const res = await fetch(`http://localhost:${fastify.server.address().port}/stream`)
+  t.assert.strictEqual(res.status, 200)
+  const body = await res.text()
+  t.assert.ok(body.includes('partial'), 'response contains streamed data')
+  t.assert.strictEqual(capturedSignal.aborted, true, 'signal aborted after timeout')
+})
+
+// VAL-09: request.signal aborts on client disconnect
+test('request.signal aborts when client disconnects', async (t) => {
+  t.plan(1)
+  const net = require('node:net')
+  const fastify = Fastify()
+  let signalAbortedPromiseResolve
+  const signalAbortedPromise = new Promise((resolve) => { signalAbortedPromiseResolve = resolve })
+
+  fastify.get('/disconnect', async (request) => {
+    request.signal.addEventListener('abort', () => {
+      signalAbortedPromiseResolve(true)
+    })
+    await sleep(5000)
+    return { ok: true }
+  })
+
+  await fastify.listen({ port: 0 })
+  t.after(() => fastify.close())
+  const port = fastify.server.address().port
+
+  const client = net.connect(port, '127.0.0.1', () => {
+    client.write('GET /disconnect HTTP/1.1\r\nHost: localhost\r\n\r\n')
+    setTimeout(() => { client.destroy() }, 50)
+  })
+
+  const aborted = await signalAbortedPromise
+  t.assert.strictEqual(aborted, true, 'signal aborted on client disconnect')
+})
+
 // Error code class check
 test('FST_ERR_ROUTE_REQUEST_TIMEOUT has correct properties', (t) => {
   t.plan(3)

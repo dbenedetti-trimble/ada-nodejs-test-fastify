@@ -95,6 +95,8 @@ const getHandler: RouteHandler = function (request, _reply) {
           (input: { [key: string]: unknown }, schema: { [key: string]: unknown }, httpPart?: HTTPRequestPart) => boolean
             >(request.validateInput)
   expectAssignable<(input: { [key: string]: unknown }, httpPart?: HTTPRequestPart) => boolean>(request.validateInput)
+  expectType<AbortSignal>(request.signal)
+  expectType<number | undefined>(request.routeOptions.requestTimeout)
   expectType<string>(request.getDecorator<string>('foo'))
   expectType<void>(request.setDecorator('foo', 'hello'))
   expectType<void>(request.setDecorator<string>('foo', 'hello'))
