@@ -5,7 +5,7 @@ const Fastify = require('../../fastify')
 const cachePlugin = require('../index')
 
 test('ETag is set on cached response', async t => {
-  t.plan(2)
+  t.plan(1)
   const fastify = Fastify({ logger: false })
   t.after(() => fastify.close())
 
@@ -16,8 +16,7 @@ test('ETag is set on cached response', async t => {
   })
 
   const res = await fastify.inject({ method: 'GET', url: '/data' })
-  t.assert.ok(res.headers.etag)
-  t.assert.ok(res.headers.etag.startsWith('W/"'))
+  t.assert.match(res.headers.etag, /^W\/"[0-9a-f]{16}"$/)
 })
 
 test('If-None-Match with matching ETag returns 304', async t => {
@@ -128,5 +127,5 @@ test('ETag format is W/"16-hex-chars"', async t => {
   })
 
   const res = await fastify.inject({ method: 'GET', url: '/data' })
-  t.assert.ok(/^W\/"[0-9a-f]{16}"$/.test(res.headers.etag))
+  t.assert.match(res.headers.etag, /^W\/"[0-9a-f]{16}"$/)
 })

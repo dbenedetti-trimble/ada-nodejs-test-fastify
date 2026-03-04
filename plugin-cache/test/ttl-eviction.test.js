@@ -4,14 +4,14 @@ const { test } = require('node:test')
 const Fastify = require('../../fastify')
 const cachePlugin = require('../index')
 
-function delay (ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
-
 test('TTL expiry: entry is hit before expiry', async t => {
   t.plan(2)
   const fastify = Fastify({ logger: false })
   t.after(() => fastify.close())
+
+  let fakeNow = Date.now()
+  t.mock.method(Date, 'now', () => fakeNow)
+  t.after(() => t.mock.restoreAll())
 
   await fastify.register(cachePlugin)
 
@@ -20,8 +20,8 @@ test('TTL expiry: entry is hit before expiry', async t => {
   })
 
   await fastify.inject({ method: 'GET', url: '/data' })
-  await delay(50)
 
+  fakeNow += 50
   const res = await fastify.inject({ method: 'GET', url: '/data' })
   t.assert.strictEqual(res.headers['x-cache'], 'HIT')
   t.assert.strictEqual(res.statusCode, 200)
@@ -31,6 +31,10 @@ test('TTL expiry: entry is miss after expiry', async t => {
   t.plan(2)
   const fastify = Fastify({ logger: false })
   t.after(() => fastify.close())
+
+  let fakeNow = Date.now()
+  t.mock.method(Date, 'now', () => fakeNow)
+  t.after(() => t.mock.restoreAll())
 
   await fastify.register(cachePlugin)
 
@@ -43,7 +47,7 @@ test('TTL expiry: entry is miss after expiry', async t => {
   await fastify.inject({ method: 'GET', url: '/data' })
   t.assert.strictEqual(handlerCalls, 1)
 
-  await delay(150)
+  fakeNow += 150
 
   const res = await fastify.inject({ method: 'GET', url: '/data' })
   t.assert.strictEqual(res.headers['x-cache'], 'MISS')
@@ -64,7 +68,6 @@ test('LRU eviction: oldest entry evicted when full', async t => {
   await fastify.inject({ method: 'GET', url: '/b' })
   await fastify.inject({ method: 'GET', url: '/c' })
 
-  // /b and /c are in cache; /a was evicted
   const resB = await fastify.inject({ method: 'GET', url: '/b' })
   t.assert.strictEqual(resB.headers['x-cache'], 'HIT')
 
@@ -89,11 +92,9 @@ test('LRU access updates recency', async t => {
   await fastify.inject({ method: 'GET', url: '/a' })
   await fastify.inject({ method: 'GET', url: '/b' })
 
-  // Access /a to refresh recency
   const hitA = await fastify.inject({ method: 'GET', url: '/a' })
   t.assert.strictEqual(hitA.headers['x-cache'], 'HIT')
 
-  // Add /c, should evict /b (least recent) not /a
   await fastify.inject({ method: 'GET', url: '/c' })
 
   const resB = await fastify.inject({ method: 'GET', url: '/b' })
@@ -105,6 +106,10 @@ test('expired entries cleaned up on access (lazy eviction)', async t => {
   const fastify = Fastify({ logger: false })
   t.after(() => fastify.close())
 
+  let fakeNow = Date.now()
+  t.mock.method(Date, 'now', () => fakeNow)
+  t.after(() => t.mock.restoreAll())
+
   await fastify.register(cachePlugin)
 
   fastify.get('/data', { config: { cache: { ttl: 50 } } }, async () => {
@@ -114,9 +119,8 @@ test('expired entries cleaned up on access (lazy eviction)', async t => {
   await fastify.inject({ method: 'GET', url: '/data' })
   t.assert.strictEqual(fastify.cache.stats().items, 1)
 
-  await delay(100)
+  fakeNow += 100
 
   await fastify.inject({ method: 'GET', url: '/data' })
-  // After access, the expired entry was removed and a new one stored
   t.assert.strictEqual(fastify.cache.stats().items, 1)
 })

@@ -4,10 +4,6 @@ const { test } = require('node:test')
 const Fastify = require('../../fastify')
 const cachePlugin = require('../index')
 
-function delay (ms) {
-  return new Promise(resolve => setTimeout(resolve, ms))
-}
-
 test('response Cache-Control: no-store prevents caching', async t => {
   t.plan(2)
   const fastify = Fastify({ logger: false })
@@ -50,6 +46,10 @@ test('response Cache-Control: max-age overrides route TTL', async t => {
   const fastify = Fastify({ logger: false })
   t.after(() => fastify.close())
 
+  let fakeNow = Date.now()
+  t.mock.method(Date, 'now', () => fakeNow)
+  t.after(() => t.mock.restoreAll())
+
   await fastify.register(cachePlugin)
 
   let handlerCalls = 0
@@ -60,7 +60,8 @@ test('response Cache-Control: max-age overrides route TTL', async t => {
   })
 
   await fastify.inject({ method: 'GET', url: '/data' })
-  await delay(1500)
+
+  fakeNow += 1500
 
   const res = await fastify.inject({ method: 'GET', url: '/data' })
   t.assert.strictEqual(res.headers['x-cache'], 'MISS')
@@ -72,6 +73,10 @@ test('response Cache-Control: s-maxage takes priority over max-age', async t => 
   const fastify = Fastify({ logger: false })
   t.after(() => fastify.close())
 
+  let fakeNow = Date.now()
+  t.mock.method(Date, 'now', () => fakeNow)
+  t.after(() => t.mock.restoreAll())
+
   await fastify.register(cachePlugin)
 
   let handlerCalls = 0
@@ -82,7 +87,8 @@ test('response Cache-Control: s-maxage takes priority over max-age', async t => 
   })
 
   await fastify.inject({ method: 'GET', url: '/data' })
-  await delay(1500)
+
+  fakeNow += 1500
 
   const res = await fastify.inject({ method: 'GET', url: '/data' })
   t.assert.strictEqual(res.headers['x-cache'], 'MISS')

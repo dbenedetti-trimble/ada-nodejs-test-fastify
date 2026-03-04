@@ -7,9 +7,26 @@ const { generateETag } = require('./lib/etag')
 
 async function cachePlugin (fastify, opts) {
   const maxItems = opts.maxItems ?? 1000
+  if (typeof maxItems !== 'number' || maxItems < 1 || !Number.isInteger(maxItems)) {
+    throw new TypeError('maxItems must be a positive integer')
+  }
+
   const defaultTtl = opts.ttl ?? 60000
-  const methods = new Set((opts.methods ?? ['GET']).map(m => m.toUpperCase()))
-  const globalVary = (opts.vary ?? []).map(h => h.toLowerCase())
+  if (typeof defaultTtl !== 'number' || defaultTtl < 0) {
+    throw new TypeError('ttl must be a non-negative number')
+  }
+
+  const methodsOpt = opts.methods ?? ['GET']
+  if (!Array.isArray(methodsOpt) || methodsOpt.some(m => typeof m !== 'string')) {
+    throw new TypeError('methods must be an array of strings')
+  }
+  const methods = new Set(methodsOpt.map(m => m.toUpperCase()))
+
+  const varyOpt = opts.vary ?? []
+  if (!Array.isArray(varyOpt) || varyOpt.some(h => typeof h !== 'string')) {
+    throw new TypeError('vary must be an array of strings')
+  }
+  const globalVary = varyOpt.map(h => h.toLowerCase())
 
   const cache = new LRUCache(maxItems)
   let hits = 0
@@ -17,9 +34,15 @@ async function cachePlugin (fastify, opts) {
 
   fastify.decorate('cache', {
     purge (key) {
+      if (typeof key !== 'string') {
+        throw new TypeError('purge key must be a string')
+      }
       return cache.delete(key)
     },
     purgeByPrefix (urlPrefix) {
+      if (typeof urlPrefix !== 'string') {
+        throw new TypeError('purgeByPrefix urlPrefix must be a string')
+      }
       let count = 0
       for (const key of Array.from(cache.keys())) {
         const urlPart = key.split('|')[1]

@@ -82,7 +82,7 @@ test('basic cache miss then hit', async t => {
   const res1 = await fastify.inject({ method: 'GET', url: '/data' })
   t.assert.strictEqual(res1.statusCode, 200)
   t.assert.strictEqual(res1.headers['x-cache'], 'MISS')
-  t.assert.ok(res1.headers.etag)
+  t.assert.match(res1.headers.etag, /^W\/"[0-9a-f]{16}"$/)
   t.assert.strictEqual(handlerCalls, 1)
 
   const res2 = await fastify.inject({ method: 'GET', url: '/data' })

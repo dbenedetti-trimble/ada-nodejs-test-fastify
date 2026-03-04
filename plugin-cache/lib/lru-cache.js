@@ -2,6 +2,9 @@
 
 class LRUCache {
   constructor (maxItems) {
+    if (typeof maxItems !== 'number' || maxItems < 1 || !Number.isInteger(maxItems)) {
+      throw new TypeError('maxItems must be a positive integer')
+    }
     this._map = new Map()
     this._maxItems = maxItems
   }

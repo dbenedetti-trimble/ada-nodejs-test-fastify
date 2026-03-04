@@ -43,7 +43,7 @@ test('cache hit preserves original content-type', async t => {
 
   const res2 = await fastify.inject({ method: 'GET', url: '/data' })
   t.assert.strictEqual(res2.headers['content-type'], contentType)
-  t.assert.ok(contentType.includes('application/json'))
+  t.assert.match(contentType, /application\/json/)
 })
 
 test('cache hit skips handler entirely', async t => {
@@ -104,6 +104,10 @@ test('route with config.cache.ttl overrides default', async t => {
   const fastify = Fastify({ logger: false })
   t.after(() => fastify.close())
 
+  let fakeNow = Date.now()
+  t.mock.method(Date, 'now', () => fakeNow)
+  t.after(() => t.mock.restoreAll())
+
   await fastify.register(cachePlugin, { ttl: 60000 })
 
   fastify.get('/fast', { config: { cache: { ttl: 100 } } }, async () => {
@@ -112,7 +116,7 @@ test('route with config.cache.ttl overrides default', async t => {
 
   await fastify.inject({ method: 'GET', url: '/fast' })
 
-  await new Promise(resolve => setTimeout(resolve, 150))
+  fakeNow += 150
 
   const res = await fastify.inject({ method: 'GET', url: '/fast' })
   t.assert.strictEqual(res.headers['x-cache'], 'MISS')
