@@ -23,14 +23,14 @@ test('VAL-10: error recording on handler exception', async t => {
 
   const spans = getSpans(exporter)
   const handlerSpan = findSpan(spans, 'fastify.handler')
-  t.assert.ok(handlerSpan, 'handler span exists')
+  t.assert.notStrictEqual(handlerSpan, undefined, 'handler span exists')
   t.assert.strictEqual(handlerSpan.status.code, SpanStatusCode.ERROR, 'handler span status is ERROR')
   t.assert.strictEqual(handlerSpan.status.message, 'db failed')
-  t.assert.ok(handlerSpan.events.length > 0, 'handler span has events')
+  t.assert.strictEqual(handlerSpan.events.length > 0, true, 'handler span has events')
   t.assert.strictEqual(handlerSpan.events[0].name, 'exception')
 
   const serverSpan = spans.find(s => s.kind === SpanKind.SERVER)
-  t.assert.ok(serverSpan, 'server span exists')
+  t.assert.notStrictEqual(serverSpan, undefined, 'server span exists')
   t.assert.strictEqual(serverSpan.status.code, SpanStatusCode.ERROR, 'server span status is ERROR')
   t.assert.strictEqual(serverSpan.attributes['http.response.status_code'], 500)
 })
@@ -53,12 +53,12 @@ test('VAL-11: 5xx response without exception sets error status', async t => {
 
   const spans = getSpans(exporter)
   const serverSpan = spans.find(s => s.kind === SpanKind.SERVER)
-  t.assert.ok(serverSpan, 'server span exists')
+  t.assert.notStrictEqual(serverSpan, undefined, 'server span exists')
   t.assert.strictEqual(serverSpan.status.code, SpanStatusCode.ERROR, 'server span status is ERROR')
   t.assert.strictEqual(serverSpan.status.message, 'HTTP 503')
 
   const handlerSpan = findSpan(spans, 'fastify.handler')
-  t.assert.ok(handlerSpan, 'handler span exists')
+  t.assert.notStrictEqual(handlerSpan, undefined, 'handler span exists')
   t.assert.strictEqual(handlerSpan.status.code, SpanStatusCode.UNSET, 'handler span status is UNSET')
 })
 
@@ -80,7 +80,7 @@ test('VAL-12: 4xx response does not set error status', async t => {
 
   const spans = getSpans(exporter)
   const serverSpan = spans.find(s => s.kind === SpanKind.SERVER)
-  t.assert.ok(serverSpan, 'server span exists')
+  t.assert.notStrictEqual(serverSpan, undefined, 'server span exists')
   t.assert.strictEqual(serverSpan.status.code, SpanStatusCode.UNSET, 'server span status is UNSET')
   t.assert.strictEqual(serverSpan.attributes['http.response.status_code'], 404)
 })
@@ -102,7 +102,7 @@ test('async rejected promise records error on handler span', async t => {
 
   const spans = getSpans(exporter)
   const handlerSpan = findSpan(spans, 'fastify.handler')
-  t.assert.ok(handlerSpan, 'handler span exists')
+  t.assert.notStrictEqual(handlerSpan, undefined, 'handler span exists')
   t.assert.strictEqual(handlerSpan.status.code, SpanStatusCode.ERROR)
   t.assert.strictEqual(handlerSpan.status.message, 'async fail')
 })

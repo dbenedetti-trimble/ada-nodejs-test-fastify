@@ -22,8 +22,8 @@ test('VAL-06: handler span is a child of server span', async t => {
   const serverSpan = spans.find(s => s.kind === SpanKind.SERVER)
   const handlerSpan = findSpan(spans, 'fastify.handler')
 
-  t.assert.ok(serverSpan, 'server span exists')
-  t.assert.ok(handlerSpan, 'handler span exists')
+  t.assert.notStrictEqual(serverSpan, undefined, 'server span exists')
+  t.assert.notStrictEqual(handlerSpan, undefined, 'handler span exists')
   t.assert.strictEqual(
     handlerSpan.parentSpanContext.spanId,
     serverSpan.spanContext().spanId,
@@ -48,7 +48,7 @@ test('handler span covers async handlers', async t => {
 
   const spans = getSpans(exporter)
   const handlerSpan = findSpan(spans, 'fastify.handler')
-  t.assert.ok(handlerSpan, 'handler span exists for async handler')
+  t.assert.notStrictEqual(handlerSpan, undefined, 'handler span exists for async handler')
 })
 
 test('handler span records exception when handler throws', async t => {
@@ -68,10 +68,10 @@ test('handler span records exception when handler throws', async t => {
 
   const spans = getSpans(exporter)
   const handlerSpan = findSpan(spans, 'fastify.handler')
-  t.assert.ok(handlerSpan, 'handler span exists')
+  t.assert.notStrictEqual(handlerSpan, undefined, 'handler span exists')
   t.assert.strictEqual(handlerSpan.status.code, 2, 'handler span status is ERROR (code 2)')
   t.assert.strictEqual(handlerSpan.status.message, 'db failed')
-  t.assert.ok(handlerSpan.events.length > 0, 'handler span has exception event')
+  t.assert.strictEqual(handlerSpan.events.length > 0, true, 'handler span has exception event')
   t.assert.strictEqual(handlerSpan.events[0].name, 'exception')
 })
 

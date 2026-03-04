@@ -23,7 +23,7 @@ test('VAL-17: request.otelSpan provides access to server span for custom attribu
 
   const spans = getSpans(exporter)
   const serverSpan = spans.find(s => s.kind === SpanKind.SERVER)
-  t.assert.ok(serverSpan, 'server span exists')
+  t.assert.notStrictEqual(serverSpan, undefined, 'server span exists')
   t.assert.strictEqual(serverSpan.attributes['custom.key'], 'value', 'custom attribute is set')
 })
 
@@ -46,7 +46,7 @@ test('VAL-18: custom spanNameFormatter overrides default naming', async t => {
 
   const spans = getSpans(exporter)
   const serverSpan = spans.find(s => s.kind === SpanKind.SERVER)
-  t.assert.ok(serverSpan, 'server span exists')
+  t.assert.notStrictEqual(serverSpan, undefined, 'server span exists')
   t.assert.strictEqual(serverSpan.name, 'CUSTOM GET', 'custom span name formatter used')
 })
 
@@ -89,14 +89,14 @@ test('VAL-20: async handler spans complete correctly', async t => {
 
   const spans = getSpans(exporter)
   const handlerSpan = findSpan(spans, 'fastify.handler')
-  t.assert.ok(handlerSpan, 'handler span exists')
+  t.assert.notStrictEqual(handlerSpan, undefined, 'handler span exists')
 
   const durationMs = (handlerSpan.endTime[0] - handlerSpan.startTime[0]) * 1000 +
     (handlerSpan.endTime[1] - handlerSpan.startTime[1]) / 1e6
-  t.assert.ok(durationMs >= 40, 'handler span duration >= 40ms (actual: ' + durationMs.toFixed(1) + 'ms)')
+  t.assert.strictEqual(durationMs >= 40, true, 'handler span duration >= 40ms (actual: ' + durationMs.toFixed(1) + 'ms)')
 
   const serverSpan = spans.find(s => s.kind === SpanKind.SERVER)
-  t.assert.ok(serverSpan, 'server span exists')
+  t.assert.notStrictEqual(serverSpan, undefined, 'server span exists')
   t.assert.strictEqual(serverSpan.status.code, 0, 'server span has no error status')
   t.assert.strictEqual(handlerSpan.status.code, 0, 'handler span has no error status')
 })
@@ -111,8 +111,8 @@ test('fastify.otel.tracer returns a tracer instance', async t => {
   fastify.register(otelPlugin, { hookSpans: false })
   await fastify.ready()
 
-  t.assert.ok(fastify.otel, 'otel decorator exists')
-  t.assert.ok(fastify.otel.tracer, 'tracer exists')
+  t.assert.notStrictEqual(fastify.otel, undefined, 'otel decorator exists')
+  t.assert.notStrictEqual(fastify.otel.tracer, undefined, 'tracer exists')
   t.assert.strictEqual(typeof fastify.otel.tracer.startSpan, 'function', 'tracer has startSpan')
 })
 
@@ -130,6 +130,6 @@ test('duplicate registration throws FST_ERR_DEC_ALREADY_PRESENT', async t => {
     await fastify.ready()
     t.assert.fail('should have thrown')
   } catch (err) {
-    t.assert.ok(err.message.includes('already'), 'error about duplicate decorator: ' + err.message)
+    t.assert.strictEqual(err.message.includes('already'), true, 'error about duplicate decorator: ' + err.message)
   }
 })

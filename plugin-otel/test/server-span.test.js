@@ -40,7 +40,7 @@ test('VAL-05: server span uses route pattern, not resolved URL', async t => {
 
   const spans = getSpans(exporter)
   const serverSpan = spans.find(s => s.kind === SpanKind.SERVER)
-  t.assert.ok(serverSpan, 'server span exists')
+  t.assert.notStrictEqual(serverSpan, undefined, 'server span exists')
   t.assert.strictEqual(serverSpan.name, 'GET /users/:id')
   t.assert.strictEqual(serverSpan.attributes['http.route'], '/users/:id')
   t.assert.strictEqual(serverSpan.attributes['url.path'], '/users/42')
@@ -60,7 +60,7 @@ test('server span kind is SERVER', async t => {
 
   const spans = getSpans(exporter)
   const serverSpan = spans.find(s => s.name === 'GET /test')
-  t.assert.ok(serverSpan, 'server span exists')
+  t.assert.notStrictEqual(serverSpan, undefined, 'server span exists')
   t.assert.strictEqual(serverSpan.kind, SpanKind.SERVER)
 })
 
@@ -80,7 +80,7 @@ test('server span accessible from request.otelSpan', async t => {
   })
 
   await fastify.inject({ method: 'GET', url: '/test' })
-  t.assert.ok(hadSpan, 'request.otelSpan was available in handler')
+  t.assert.strictEqual(hadSpan, true, 'request.otelSpan was available in handler')
 })
 
 test('404 route uses method-only span name', async t => {
@@ -97,6 +97,6 @@ test('404 route uses method-only span name', async t => {
 
   const spans = getSpans(exporter)
   const serverSpan = spans.find(s => s.kind === SpanKind.SERVER)
-  t.assert.ok(serverSpan, 'server span exists')
+  t.assert.notStrictEqual(serverSpan, undefined, 'server span exists')
   t.assert.strictEqual(serverSpan.name, 'GET')
 })

@@ -25,6 +25,13 @@ async function otelPlugin (fastify, opts) {
     return
   }
 
+  if (opts.ignoreRoutes !== undefined && !Array.isArray(opts.ignoreRoutes)) {
+    throw new TypeError('ignoreRoutes must be an array of strings')
+  }
+  if (opts.spanNameFormatter !== undefined && opts.spanNameFormatter !== null && typeof opts.spanNameFormatter !== 'function') {
+    throw new TypeError('spanNameFormatter must be a function')
+  }
+
   const { trace, SpanKind, SpanStatusCode, context } = otel
   const tracer = trace.getTracer('fastify', fastify.version)
   const ignoreRoutes = new Set(opts.ignoreRoutes || [])

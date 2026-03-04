@@ -1,4 +1,4 @@
-import { FastifyPluginCallback } from 'fastify'
+import { FastifyPluginCallback, FastifyRequest } from 'fastify'
 import { Tracer, Span } from '@opentelemetry/api'
 
 interface OtelPluginOptions {
@@ -16,8 +16,6 @@ declare const otelPlugin: FastifyPluginCallback<OtelPluginOptions>
 
 export default otelPlugin
 export { OtelPluginOptions, OtelDecorator }
-
-import { FastifyRequest } from 'fastify'
 
 declare module 'fastify' {
   interface FastifyInstance {

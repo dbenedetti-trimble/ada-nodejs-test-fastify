@@ -26,7 +26,7 @@ test('VAL-13: W3C Trace Context propagation from incoming headers', async t => {
 
   const spans = getSpans(exporter)
   const serverSpan = spans.find(s => s.kind === SpanKind.SERVER)
-  t.assert.ok(serverSpan, 'server span exists')
+  t.assert.notStrictEqual(serverSpan, undefined, 'server span exists')
   t.assert.strictEqual(
     serverSpan.spanContext().traceId,
     '4bf92f3577b34da6a3ce929d0e0e4736',
@@ -53,8 +53,8 @@ test('VAL-14: new trace started when no traceparent header', async t => {
 
   const spans = getSpans(exporter)
   const serverSpan = spans.find(s => s.kind === SpanKind.SERVER)
-  t.assert.ok(serverSpan, 'server span exists')
-  t.assert.ok(serverSpan.spanContext().traceId, 'has a trace ID')
+  t.assert.notStrictEqual(serverSpan, undefined, 'server span exists')
+  t.assert.notStrictEqual(serverSpan.spanContext().traceId, undefined, 'has a trace ID')
   t.assert.strictEqual(serverSpan.parentSpanContext, undefined, 'no parent span ID')
 })
 
@@ -81,8 +81,8 @@ test('VAL-15: child spans in handler are parented to server span', async t => {
   const spans = getSpans(exporter)
   const serverSpan = spans.find(s => s.kind === SpanKind.SERVER)
   const customSpan = findSpan(spans, 'custom')
-  t.assert.ok(serverSpan, 'server span exists')
-  t.assert.ok(customSpan, 'custom child span exists')
+  t.assert.notStrictEqual(serverSpan, undefined, 'server span exists')
+  t.assert.notStrictEqual(customSpan, undefined, 'custom child span exists')
   t.assert.strictEqual(
     customSpan.parentSpanContext.spanId,
     serverSpan.spanContext().spanId,

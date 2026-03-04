@@ -26,7 +26,7 @@ test('VAL-09: HTTP semantic convention attributes on server span', async t => {
 
   const spans = getSpans(exporter)
   const serverSpan = spans.find(s => s.kind === SpanKind.SERVER)
-  t.assert.ok(serverSpan, 'server span exists')
+  t.assert.notStrictEqual(serverSpan, undefined, 'server span exists')
 
   const attrs = serverSpan.attributes
   t.assert.strictEqual(attrs['http.request.method'], 'GET')
@@ -36,9 +36,9 @@ test('VAL-09: HTTP semantic convention attributes on server span', async t => {
   t.assert.strictEqual(attrs['http.response.status_code'], 200)
   t.assert.strictEqual(typeof attrs['http.response.status_code'], 'number')
   t.assert.strictEqual(attrs['http.route'], '/items')
-  t.assert.ok(attrs['network.protocol.version'], 'has protocol version')
-  t.assert.ok(attrs['server.address'], 'has server address')
-  t.assert.ok(attrs['url.scheme'], 'has url scheme')
+  t.assert.notStrictEqual(attrs['network.protocol.version'], undefined, 'has protocol version')
+  t.assert.notStrictEqual(attrs['server.address'], undefined, 'has server address')
+  t.assert.notStrictEqual(attrs['url.scheme'], undefined, 'has url scheme')
 })
 
 test('url.query omitted when no query string', async t => {
