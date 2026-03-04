@@ -36,7 +36,7 @@ describe('IMP-1: Enhanced "already started" error messages', () => {
       t.assert.fail('should have thrown')
     } catch (e) {
       t.assert.strictEqual(e.code, 'FST_ERR_INSTANCE_ALREADY_LISTENING')
-      t.assert.match(e.message, /Cannot add route/)
+      t.assert.match(e.message, /Cannot call "route"/)
       t.assert.match(e.message, /Move this call inside a plugin register function/)
     }
   })
