@@ -551,3 +551,8 @@ expectType<FastifyInstance>(fastify().route({
     expectAssignable<string | Array<string>>(req.routeOptions.method)
   }
 }))
+
+// requestTimeout route option type tests
+expectType<FastifyInstance>(fastify().get('/typed', { requestTimeout: 5000 }, async () => {}))
+expectType<FastifyInstance>(fastify().get('/disabled', { requestTimeout: 0 }, async () => {}))
+expectError(fastify().get('/bad', { requestTimeout: 'fast' }, async () => {}))

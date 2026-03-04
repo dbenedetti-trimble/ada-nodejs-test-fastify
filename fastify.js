@@ -32,7 +32,8 @@ const {
   kKeepAliveConnections,
   kChildLoggerFactory,
   kGenReqId,
-  kErrorHandlerAlreadySet
+  kErrorHandlerAlreadySet,
+  kRouteTimeout
 } = require('./lib/symbols.js')
 
 const { createServer } = require('./lib/server')
@@ -147,6 +148,7 @@ function fastify (serverOptions) {
     [kChildren]: [],
     [kServerBindings]: [],
     [kBodyLimit]: options.bodyLimit,
+    [kRouteTimeout]: options.routeTimeout || 0,
     [kRoutePrefix]: '',
     [kLogLevel]: '',
     [kLogSerializers]: null,
