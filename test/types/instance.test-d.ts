@@ -333,6 +333,7 @@ type InitialConfig = Readonly<{
   requestIdLogLabel?: string,
   http2SessionTimeout?: number,
   useSemicolonDelimiter?: boolean,
+  routeTimeout?: number,
   routerOptions?: FastifyRouterOptions<RawServerDefault>
 }>
 

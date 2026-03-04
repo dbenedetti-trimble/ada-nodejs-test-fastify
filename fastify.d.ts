@@ -170,6 +170,7 @@ declare namespace fastify {
     clientErrorHandler?: (error: ConnectionError, socket: Socket) => void,
     childLoggerFactory?: FastifyChildLoggerFactory,
     allowErrorHandlerOverride?: boolean
+    routeTimeout?: number,
     routerOptions?: FastifyRouterOptions<RawServer>,
   }
 

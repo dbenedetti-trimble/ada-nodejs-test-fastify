@@ -604,6 +604,7 @@ export interface FastifyInstance<
     requestIdLogLabel?: string,
     http2SessionTimeout?: number,
     useSemicolonDelimiter?: boolean,
+    routeTimeout?: number,
     routerOptions?: FastifyRouterOptions<RawServer>
   }>
 }
