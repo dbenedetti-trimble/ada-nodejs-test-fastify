@@ -19,8 +19,8 @@ describe('IMP-1: Enhanced "already started" error messages', () => {
       t.assert.fail('should have thrown')
     } catch (e) {
       t.assert.strictEqual(e.code, 'FST_ERR_INSTANCE_ALREADY_LISTENING')
-      t.assert.ok(e.message.includes('addHook'))
-      t.assert.ok(e.message.includes('inside a plugin register function'))
+      t.assert.match(e.message, /addHook/)
+      t.assert.match(e.message, /Move this call inside a plugin register function/)
     }
   })
 
@@ -36,8 +36,8 @@ describe('IMP-1: Enhanced "already started" error messages', () => {
       t.assert.fail('should have thrown')
     } catch (e) {
       t.assert.strictEqual(e.code, 'FST_ERR_INSTANCE_ALREADY_LISTENING')
-      t.assert.ok(e.message.includes('Cannot add route'))
-      t.assert.ok(e.message.includes('inside a plugin register function'))
+      t.assert.match(e.message, /Cannot add route/)
+      t.assert.match(e.message, /Move this call inside a plugin register function/)
     }
   })
 
@@ -53,8 +53,8 @@ describe('IMP-1: Enhanced "already started" error messages', () => {
       t.assert.fail('should have thrown')
     } catch (e) {
       t.assert.strictEqual(e.code, 'FST_ERR_INSTANCE_ALREADY_LISTENING')
-      t.assert.ok(e.message.includes('setErrorHandler'))
-      t.assert.ok(e.message.includes('inside a plugin register function'))
+      t.assert.match(e.message, /setErrorHandler/)
+      t.assert.match(e.message, /Move this call inside a plugin register function/)
     }
   })
 })
@@ -67,7 +67,7 @@ describe('IMP-2: Hook name in async arity validation errors', () => {
       fastify.addHook('onRequest', async (req, reply, done) => {})
     } catch (e) {
       t.assert.strictEqual(e.code, 'FST_ERR_HOOK_INVALID_ASYNC_HANDLER')
-      t.assert.ok(e.message.includes('"onRequest"'))
+      t.assert.strictEqual(e.message, 'Async function for "onRequest" hook has too many arguments. Async hooks should not use the \'done\' argument.')
     }
   })
 
@@ -78,7 +78,7 @@ describe('IMP-2: Hook name in async arity validation errors', () => {
       fastify.addHook('preSerialization', async (req, reply, payload, done) => {})
     } catch (e) {
       t.assert.strictEqual(e.code, 'FST_ERR_HOOK_INVALID_ASYNC_HANDLER')
-      t.assert.ok(e.message.includes('"preSerialization"'))
+      t.assert.strictEqual(e.message, 'Async function for "preSerialization" hook has too many arguments. Async hooks should not use the \'done\' argument.')
     }
   })
 
@@ -89,7 +89,7 @@ describe('IMP-2: Hook name in async arity validation errors', () => {
       fastify.addHook('onSend', async (req, reply, payload, done) => {})
     } catch (e) {
       t.assert.strictEqual(e.code, 'FST_ERR_HOOK_INVALID_ASYNC_HANDLER')
-      t.assert.ok(e.message.includes('"onSend"'))
+      t.assert.strictEqual(e.message, 'Async function for "onSend" hook has too many arguments. Async hooks should not use the \'done\' argument.')
     }
   })
 
@@ -102,7 +102,7 @@ describe('IMP-2: Hook name in async arity validation errors', () => {
       }, async () => 'ok')
     } catch (e) {
       t.assert.strictEqual(e.code, 'FST_ERR_HOOK_INVALID_ASYNC_HANDLER')
-      t.assert.ok(e.message.includes('"preHandler"'))
+      t.assert.strictEqual(e.message, 'Async function for "preHandler" hook has too many arguments. Async hooks should not use the \'done\' argument.')
     }
   })
 
@@ -115,7 +115,7 @@ describe('IMP-2: Hook name in async arity validation errors', () => {
       }, async () => 'ok')
     } catch (e) {
       t.assert.strictEqual(e.code, 'FST_ERR_HOOK_INVALID_ASYNC_HANDLER')
-      t.assert.ok(e.message.includes('"onSend"'))
+      t.assert.strictEqual(e.message, 'Async function for "onSend" hook has too many arguments. Async hooks should not use the \'done\' argument.')
     }
   })
 })
@@ -152,8 +152,8 @@ describe('IMP-3: No-response warning', () => {
     await new Promise(resolve => setTimeout(resolve, 100))
 
     const w = warnings.find(w => w.code === 'FSTWRN005')
-    t.assert.ok(w, 'FSTWRN005 warning should be emitted')
-    t.assert.ok(w.message.includes('GET') && w.message.includes('/hang'))
+    t.assert.notStrictEqual(w, undefined, 'FSTWRN005 warning should be emitted')
+    t.assert.strictEqual(w.message, 'Route handler for "GET /hang" resolved without sending a response. Return a value from the handler or call reply.send() explicitly.')
   })
 
   test('no warning when handler returns a value', async (t) => {
