@@ -8,6 +8,7 @@ const { buildRequestAttributes, buildResponseAttributes } = require('./lib/span-
 const kOtelSpan = Symbol('fastify.otel.span')
 const kHandlerSpan = Symbol('fastify.otel.handlerSpan')
 const kHookSpans = Symbol('fastify.otel.hookSpans')
+const kOtelContext = Symbol('fastify.otel.context')
 
 const HOOK_PHASES = [
   'onRequest',
@@ -19,17 +20,17 @@ const HOOK_PHASES = [
 ]
 
 async function otelPlugin (fastify, opts) {
-  const otel = loadOtelApi()
-  if (!otel) {
-    fastify.log.debug('@opentelemetry/api not found, instrumentation disabled')
-    return
-  }
-
   if (opts.ignoreRoutes !== undefined && !Array.isArray(opts.ignoreRoutes)) {
     throw new TypeError('ignoreRoutes must be an array of strings')
   }
   if (opts.spanNameFormatter !== undefined && opts.spanNameFormatter !== null && typeof opts.spanNameFormatter !== 'function') {
     throw new TypeError('spanNameFormatter must be a function')
+  }
+
+  const otel = loadOtelApi()
+  if (!otel) {
+    fastify.log.debug('@opentelemetry/api not found, instrumentation disabled')
+    return
   }
 
   const { trace, SpanKind, SpanStatusCode, context } = otel
@@ -44,7 +45,7 @@ async function otelPlugin (fastify, opts) {
   }
 
   fastify.addHook('onRequest', function onRequestOtel (request, reply, done) {
-    if (ignoreRoutes.has(request.routeOptions && request.routeOptions.url)) {
+    if (ignoreRoutes.has(request.routeOptions?.url)) {
       return done()
     }
 
@@ -62,7 +63,9 @@ async function otelPlugin (fastify, opts) {
       parentContext
     )
 
+    const spanContext = trace.setSpan(parentContext, span)
     request[kOtelSpan] = span
+    request[kOtelContext] = spanContext
     if (opts.exposeApi !== false) {
       request.otelSpan = span
     }
@@ -76,15 +79,14 @@ async function otelPlugin (fastify, opts) {
 
   if (hookSpansEnabled) {
     for (const phase of HOOK_PHASES) {
-      registerHookSpanStart(fastify, phase, tracer, otel)
-      registerHookSpanEnd(fastify, phase, tracer, otel)
+      registerHookSpan(fastify, phase, tracer, otel)
     }
 
     fastify.addHook('onError', function onErrorHookSpan (request, reply, error, done) {
       const serverSpan = request[kOtelSpan]
       if (!serverSpan) return done()
 
-      const ctx = trace.setSpan(context.active(), serverSpan)
+      const ctx = request[kOtelContext] || trace.setSpan(context.active(), serverSpan)
       const hookSpan = tracer.startSpan('fastify.hook.onError', {}, ctx)
       hookSpan.recordException(error)
       hookSpan.setStatus({ code: SpanStatusCode.ERROR, message: error.message })
@@ -97,7 +99,7 @@ async function otelPlugin (fastify, opts) {
     const serverSpan = request[kOtelSpan]
     if (!serverSpan) return done()
 
-    const ctx = trace.setSpan(context.active(), serverSpan)
+    const ctx = request[kOtelContext] || trace.setSpan(context.active(), serverSpan)
     const handlerSpan = tracer.startSpan('fastify.handler', {}, ctx)
     request[kHandlerSpan] = handlerSpan
     done()
@@ -133,8 +135,8 @@ async function otelPlugin (fastify, opts) {
   })
 }
 
-function registerHookSpanStart (fastify, phase, tracer, otel) {
-  fastify.addHook(phase, function hookSpanStart (request, reply, doneOrPayload, maybeDone) {
+function registerHookSpan (fastify, phase, tracer, otel) {
+  fastify.addHook(phase, function hookSpanWrap (request, reply, doneOrPayload, maybeDone) {
     const serverSpan = request[kOtelSpan]
     const hookSpans = request[kHookSpans]
     if (!serverSpan || !hookSpans) {
@@ -143,23 +145,10 @@ function registerHookSpanStart (fastify, phase, tracer, otel) {
       return
     }
 
-    const ctx = otel.trace.setSpan(otel.context.active(), serverSpan)
-    hookSpans[phase] = tracer.startSpan('fastify.hook.' + phase, {}, ctx)
-
-    if (typeof maybeDone === 'function') {
-      maybeDone(null, doneOrPayload)
-    } else if (typeof doneOrPayload === 'function') {
-      doneOrPayload()
-    }
-  })
-}
-
-function registerHookSpanEnd (fastify, phase, tracer, otel) {
-  fastify.addHook(phase, function hookSpanEnd (request, reply, doneOrPayload, maybeDone) {
-    const hookSpans = request[kHookSpans]
-    if (hookSpans && hookSpans[phase]) {
-      hookSpans[phase].end()
-    }
+    const ctx = request[kOtelContext] || otel.trace.setSpan(otel.context.active(), serverSpan)
+    const hookSpan = tracer.startSpan('fastify.hook.' + phase, {}, ctx)
+    hookSpans[phase] = hookSpan
+    hookSpan.end()
 
     if (typeof maybeDone === 'function') {
       maybeDone(null, doneOrPayload)
@@ -170,7 +159,7 @@ function registerHookSpanEnd (fastify, phase, tracer, otel) {
 }
 
 function defaultSpanName (request) {
-  const route = request.routeOptions && request.routeOptions.url
+  const route = request.routeOptions?.url
   return route ? request.method + ' ' + route : request.method
 }
 

@@ -30,7 +30,7 @@ test('VAL-16: ignoreRoutes excludes routes from instrumentation', async t => {
   t.assert.strictEqual(serverSpans[0].name, 'GET /api/data', 'span is for /api/data')
 })
 
-test('request.otelSpan is null for ignored routes', async t => {
+test('request.otelSpan is null (default) for ignored routes', async t => {
   const { exporter, provider } = setupOtel()
   t.after(() => teardownOtel(provider))
 
