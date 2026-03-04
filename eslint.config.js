@@ -8,7 +8,6 @@ module.exports = [
       'lib/error-serializer.js',
       'lib/route.js',
       'lib/**/*.ts',
-      '.ada/**',
       'test/same-shape.test.js',
       'test/types/import.js'
     ],
