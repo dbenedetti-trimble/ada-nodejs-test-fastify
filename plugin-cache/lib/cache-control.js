@@ -13,7 +13,11 @@ function parseCacheControl (header) {
     } else {
       const key = trimmed.slice(0, eqIdx).trim().toLowerCase()
       const val = trimmed.slice(eqIdx + 1).trim()
-      directives[key] = val
+      if (key === 'max-age' || key === 's-maxage') {
+        directives[key] = parseInt(val, 10) * 1000
+      } else {
+        directives[key] = val
+      }
     }
   }
   return directives

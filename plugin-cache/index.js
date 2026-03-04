@@ -44,7 +44,7 @@ async function cachePlugin (fastify, opts) {
         throw new TypeError('purgeByPrefix urlPrefix must be a string')
       }
       let count = 0
-      for (const key of Array.from(cache.keys())) {
+      for (const key of [...cache.keys()]) {
         const urlPart = key.split('|')[1]
         if (urlPart && urlPart.startsWith(urlPrefix)) {
           cache.delete(key)
@@ -136,9 +136,9 @@ async function cachePlugin (fastify, opts) {
 
     let ttl = getRouteTtl(routeConfig.cache, defaultTtl)
     if (resCc['s-maxage'] !== undefined) {
-      ttl = parseInt(resCc['s-maxage'], 10) * 1000
+      ttl = resCc['s-maxage']
     } else if (resCc['max-age'] !== undefined) {
-      ttl = parseInt(resCc['max-age'], 10) * 1000
+      ttl = resCc['max-age']
     }
 
     const noCache = resCc['no-cache'] === true
@@ -165,7 +165,7 @@ function buildCacheKey (request, routeCache, globalVary) {
   const varyParts = allVary
     .sort()
     .map(h => h + ':' + (request.headers[h] || ''))
-    .join(',')
+    .join('|')
   return request.method + '|' + request.url + '|' + varyParts
 }
 
