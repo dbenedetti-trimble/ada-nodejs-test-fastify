@@ -58,7 +58,7 @@ test('VAL-14: new trace started when no traceparent header', async t => {
   t.assert.strictEqual(serverSpan.parentSpanContext, undefined, 'no parent span ID')
 })
 
-test('VAL-15: child spans in handler are parented to server span', async t => {
+test('VAL-15: child spans in handler are parented to server span via active context', async t => {
   const { exporter, provider } = setupOtel()
   t.after(() => teardownOtel(provider))
 
@@ -67,9 +67,10 @@ test('VAL-15: child spans in handler are parented to server span', async t => {
 
   fastify.register(otelPlugin, { hookSpans: false })
   fastify.get('/test', async (request) => {
+    const otelApi = require('@opentelemetry/api')
     const tracer = fastify.otel.tracer
-    const childSpan = tracer.startSpan('custom', {}, require('@opentelemetry/api').trace.setSpan(
-      require('@opentelemetry/api').context.active(),
+    const childSpan = tracer.startSpan('custom', {}, otelApi.trace.setSpan(
+      otelApi.context.active(),
       request.otelSpan
     ))
     childSpan.end()

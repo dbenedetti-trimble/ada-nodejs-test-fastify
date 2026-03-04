@@ -45,7 +45,8 @@ async function otelPlugin (fastify, opts) {
   }
 
   fastify.addHook('onRequest', function onRequestOtel (request, reply, done) {
-    if (ignoreRoutes.has(request.routeOptions?.url)) {
+    const routeUrl = request.routeOptions?.url
+    if (ignoreRoutes.has(routeUrl) || ignoreRoutes.has(request.url)) {
       return done()
     }
 
@@ -74,7 +75,7 @@ async function otelPlugin (fastify, opts) {
       request[kHookSpans] = {}
     }
 
-    done()
+    context.with(spanContext, done)
   })
 
   if (hookSpansEnabled) {
@@ -98,6 +99,10 @@ async function otelPlugin (fastify, opts) {
   fastify.addHook('preHandler', function preHandlerOtel (request, reply, done) {
     const serverSpan = request[kOtelSpan]
     if (!serverSpan) return done()
+
+    if (hookSpansEnabled) {
+      endPreviousHookSpan(request)
+    }
 
     const ctx = request[kOtelContext] || trace.setSpan(context.active(), serverSpan)
     const handlerSpan = tracer.startSpan('fastify.handler', {}, ctx)
@@ -126,6 +131,10 @@ async function otelPlugin (fastify, opts) {
     const span = request[kOtelSpan]
     if (!span) return done()
 
+    if (hookSpansEnabled) {
+      endPreviousHookSpan(request)
+    }
+
     span.setAttributes(buildResponseAttributes(request, reply))
     if (reply.statusCode >= 500) {
       span.setStatus({ code: SpanStatusCode.ERROR, message: 'HTTP ' + reply.statusCode })
@@ -133,6 +142,14 @@ async function otelPlugin (fastify, opts) {
     span.end()
     done()
   })
+}
+
+function endPreviousHookSpan (request) {
+  const hookSpans = request[kHookSpans]
+  if (hookSpans && hookSpans._active) {
+    hookSpans._active.end()
+    hookSpans._active = null
+  }
 }
 
 function registerHookSpan (fastify, phase, tracer, otel) {
@@ -145,10 +162,12 @@ function registerHookSpan (fastify, phase, tracer, otel) {
       return
     }
 
+    endPreviousHookSpan(request)
+
     const ctx = request[kOtelContext] || otel.trace.setSpan(otel.context.active(), serverSpan)
     const hookSpan = tracer.startSpan('fastify.hook.' + phase, {}, ctx)
     hookSpans[phase] = hookSpan
-    hookSpan.end()
+    hookSpans._active = hookSpan
 
     if (typeof maybeDone === 'function') {
       maybeDone(null, doneOrPayload)
