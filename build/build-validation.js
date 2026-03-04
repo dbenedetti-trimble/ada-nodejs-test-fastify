@@ -110,7 +110,7 @@ const schema = {
     http2SessionTimeout: { type: 'integer', default: defaultInitOptions.http2SessionTimeout },
     exposeHeadRoutes: { type: 'boolean', default: defaultInitOptions.exposeHeadRoutes },
     useSemicolonDelimiter: { type: 'boolean', default: defaultInitOptions.useSemicolonDelimiter },
-    routeTimeout: { type: 'integer', default: defaultInitOptions.routeTimeout },
+    routeTimeout: { type: 'integer', minimum: 0, default: defaultInitOptions.routeTimeout },
     routerOptions: {
       type: 'object',
       additionalProperties: true,

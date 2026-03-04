@@ -102,7 +102,7 @@ test('request.signal is an AbortSignal and not aborted before timeout', async (t
   const fastify = Fastify()
 
   fastify.get('/signal', { requestTimeout: 5000 }, async (request) => {
-    t.assert.ok(request.signal instanceof AbortSignal)
+    t.assert.strictEqual(request.signal instanceof AbortSignal, true)
     t.assert.strictEqual(request.signal.aborted, false)
     return { ok: true }
   })
@@ -135,7 +135,7 @@ test('request.signal exists on every request without timeout', async (t) => {
   const fastify = Fastify()
 
   fastify.get('/signal-no-timeout', async (request) => {
-    t.assert.ok(request.signal instanceof AbortSignal)
+    t.assert.strictEqual(request.signal instanceof AbortSignal, true)
     t.assert.strictEqual(request.signal.aborted, false)
     return { ok: true }
   })
@@ -151,8 +151,8 @@ test('app-level onTimeout hook fires on per-route timeout', async (t) => {
 
   fastify.addHook('onTimeout', async (request, reply) => {
     hookFired = true
-    t.assert.ok(request)
-    t.assert.ok(reply)
+    t.assert.strictEqual(typeof request, 'object')
+    t.assert.strictEqual(typeof reply, 'object')
   })
 
   fastify.get('/hook-timeout', { requestTimeout: 50 }, async () => {
@@ -325,7 +325,7 @@ test('request.routeOptions.requestTimeout returns 0 when explicitly disabled', a
 
   const res = await fastify.inject({ method: 'GET', url: '/disabled' })
   t.assert.strictEqual(res.statusCode, 200)
-  t.assert.strictEqual(capturedTimeout, undefined)
+  t.assert.strictEqual(capturedTimeout, 0)
 })
 
 // routeTimeout exposed via initialConfig
@@ -365,5 +365,5 @@ test('FST_ERR_ROUTE_REQUEST_TIMEOUT_OPTION_NOT_INT has correct properties', (t) 
   t.plan(2)
   const err = new FST_ERR_ROUTE_REQUEST_TIMEOUT_OPTION_NOT_INT('foo')
   t.assert.strictEqual(err.code, 'FST_ERR_ROUTE_REQUEST_TIMEOUT_OPTION_NOT_INT')
-  t.assert.ok(err.message.includes('foo'))
+  t.assert.strictEqual(err.message.includes('foo'), true)
 })
